@@ -13,7 +13,6 @@ import './header.css';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
-import {uid} from 'react-uid';
 
 
 // TODO - themed background
@@ -49,13 +48,23 @@ const backgroundColor = theme('mode', {
     </body>
 --------------------------------------------------------------------- */
 class _FixedHeader extends Component {
-  render() {
-    return (
-      <div className={this.props.className} id={this.props.id}>
-        {this.props.children}
-      </div>
-    );
-  }
+    constructor(props) {
+        super(props)
+        this._div = React.createRef();
+    }
+    
+    // get the actual height of the component
+    getHeight() {
+        return this._div.current.clientHeight;
+    }
+    
+    render() {
+        return (
+            <div className={this.props.className} ref={this._div}>
+              {this.props.children}
+            </div>
+        );
+    }
 }
 
 
@@ -110,11 +119,12 @@ class Header extends Component {
         this.state = {
             height: 0
         }
+        this._content = React.createRef();
     }
 
     // record the height of the fixed banner (FixedHeader component)
     componentDidMount() {
-        const height = document.getElementById(uid(this)).clientHeight;
+        const height = this._content.current.getHeight();
         this.setState({ height });
     }
 
@@ -124,7 +134,7 @@ class Header extends Component {
         // margin for elements following the "header"
         return (
             <header className={this.props.className}>
-              <FixedHeader id={uid(this)}>
+              <FixedHeader ref={this._content}>
                 {this.props.children}
               </FixedHeader>
               <div style={{height: `${this.state.height}px`}} />
