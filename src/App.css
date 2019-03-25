@@ -1,0 +1,26 @@
+.App {
+    background-color: #282c34;
+    height: 100vh;
+    width: 100vw;
+    /*font-family: 'Open Sans',Arial,sans-serif;*/
+    padding: 0px;
+    margin: 0px;
+}
+
+html, body {
+    font-size: 18px;
+    line-height: 1.6;
+    font-family: "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+    font-style: normal;
+    padding: 0px;
+    margin: 0px;
+    color: rgb(46, 68, 78);
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+main {
+    background-color: white;
+    margin: 0px;
+    padding: 0px;
+    height: 100vh;
+}
