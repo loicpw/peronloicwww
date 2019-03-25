@@ -23,6 +23,69 @@ const backgroundColor = theme('mode', {
 
 
 /* ---------------------------------------------------------------------
+ — "FixedHeader" —
+ 
+ creates a wrapping div element to hold children components on top.
+
+ `FixedHeader` has a fixed position on top of the viewport. It renders a
+ fix banner that occupied the whole width and whose height depends on
+ its children.
+
+ It displays in flex / column mode.
+
+ renders a "div" element.
+
+ example ::
+
+    <body>
+        <header>
+            <FixedHeader>
+                <h1>my title</h1>
+                <p>this will stick on the top</p>
+            </FixedHeader>
+        </header>
+        <nav>...</nav>
+    </body>
+--------------------------------------------------------------------- */
+class _FixedHeader extends Component {
+    constructor(props) {
+        super(props)
+        this._div = React.createRef();
+    }
+    
+    // get the actual height of the component
+    getHeight() {
+        return this._div.current.clientHeight;
+    }
+    
+    render() {
+        return (
+            <div className={this.props.className} ref={this._div}>
+              {this.props.children}
+            </div>
+        );
+    }
+}
+
+
+// TODO
+const FixedHeader = styled(_FixedHeader)`
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    margin: 0px;
+    padding: 10px;
+    width: 100vw;
+    height: auto;
+    background-color: ${backgroundColor};
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1;
+`;
+
+
+/* ---------------------------------------------------------------------
  — "Header" —
  
  creates a wrapping header element to hold children components on top.
@@ -30,6 +93,10 @@ const backgroundColor = theme('mode', {
  `Header` has a fixed position on top of the viewport. It renders a fix
  banner that occupied the whole width and whose height depends on its
  children.
+
+ it also creates a phantom "div" inside the header that matches the
+ height of the fixed banner so subsequent elements will respect the
+ header.
 
  It displays in flex / column mode.
 
@@ -45,30 +112,36 @@ const backgroundColor = theme('mode', {
         <nav>...</nav>
     </Header>
 --------------------------------------------------------------------- */
-class _Header extends Component {
+class Header extends Component {
+    constructor(props) {
+        super(props)
+        // store height of the fixed banned
+        this.state = {
+            height: 0
+        }
+        this._content = React.createRef();
+    }
+
+    // record the height of the fixed banner (FixedHeader component)
+    componentDidMount() {
+        const height = this._content.current.getHeight();
+        this.setState({ height });
+    }
+
     render() {
+        // add a phantom div that matches the height of
+        // the FixedHeader component, which  will act as a
+        // margin for elements following the "header"
         return (
             <header className={this.props.className}>
-              {this.props.children}
+              <FixedHeader ref={this._content}>
+                {this.props.children}
+              </FixedHeader>
+              <div style={{height: `${this.state.height}px`}} />
             </header>
         );
     }
 }
 
-
-// TODO
-const Header = styled(_Header)`
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    margin: 0px;
-    padding: 10px;
-    width: 100vw;
-    height: auto;
-    background-color: ${backgroundColor};
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-`;
 
 export default Header;

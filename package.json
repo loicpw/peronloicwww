@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@spyna/react-store": "^1.2.0",
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
-    "react-scripts": "2.1.8",
-    "@spyna/react-store": "^1.2.0",
     "react-motion": "^0.5.2",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
+    "react-scripts": "2.1.8",
     "styled-components": "^4.1.2",
     "styled-theming": "^2.2.0"
   },

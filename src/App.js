@@ -70,7 +70,7 @@ const AppContent = withStore(_AppContent);
 // dummy page
 const Home = () => (
     <div>
-      <p style={{margin: "0px", paddingTop: "130px", color: "black"}}>
+      <p style={{margin: "0px", color: "black"}}>
         Home page
       </p>
     </div>
@@ -82,7 +82,7 @@ const Todo = ({ match }) => {
     let id = match.params.contentId;
     return (
         <div>
-          <p style={{margin: "0px", paddingTop: "130px", color: "black"}}>
+          <p style={{margin: "0px", color: "black"}}>
             show content: {id == ':contentId' ? 0 : id}
           </p>
         </div>
