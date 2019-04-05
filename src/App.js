@@ -7,6 +7,8 @@ import { Route, BrowserRouter as Router } from 'react-router-dom';
 import Header from './components/header';
 import PageTitle from './components/pagetitle';
 import NavBar from './components/navbar';
+import HomePage from './components/homepage';
+import { INITIAL_STATE as HOMEPAGE_STATE } from './components/homepage';
 
 
 /* ---------------------------------------------------------------------
@@ -54,7 +56,7 @@ const _AppContent = (props) => {
     };
     return (
         <ThemeProvider theme={theme}>
-          <div>{props.children}</div>
+          <div className='AppContent'>{props.children}</div>
         </ThemeProvider>
     );
 }
@@ -67,16 +69,6 @@ const AppContent = withStore(_AppContent);
 
  TODO
 ----------------------------------------------------------------------*/
-// dummy page
-const Home = () => (
-    <div>
-      <p style={{margin: "0px", color: "black"}}>
-        Home page
-      </p>
-    </div>
-);
-
-
 // dummy page
 const Todo = ({ match }) => {
     let id = match.params.contentId;
@@ -93,9 +85,9 @@ const Todo = ({ match }) => {
 // props: isExact + path, component... (Route)
 const Main = (props) => {
     let routes = props.routes.map(
-        ({isExact=false, ...route}) => (
-            ({isExact} ? <Route exact {...route} />
-                     : <Route {...route} />))
+        ({isExact=false, ...route}, index) => (
+            ({isExact} ? <Route exact {...route} key={index} />
+                     : <Route {...route} key={index} />))
     );
     return <main>{routes}</main>;
 };
@@ -113,7 +105,7 @@ const title = "~ website ~";
 // ( navbar props: name, link )
 // ( main content props: isExact, component, path )
 const pages = [
-    {name: "home", link: "/", isExact: true, component: Home, path: "/"},
+    {name: "home", link: "/", isExact: true, component: HomePage, path: "/"},
     {name: "todo", link: "/todo/0", component: Todo, path: "/todo/:contentId"},
 ];
 
@@ -145,10 +137,13 @@ class App extends Component {
 /* ---------------------------------------------------------------------
  — app state setup —
 
- TODO
+ TODO:
+ will do the job for now
 ----------------------------------------------------------------------*/
 const initialState = {
     theme: 'default',
+    ...HOMEPAGE_STATE,
 }
+
 
 export default createStore(App, initialState)
