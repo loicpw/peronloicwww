@@ -1,11 +1,11 @@
 /* ---------------------------------------------------------------------
- === "SpingLinks" ===
+ === "SpringLinks" ===
 
  author:       Loïc Peron
  email:        peronloic.us@gmail.com
  github:       https://github.com/loicpw
 
- component:    SpingLinks
+ component:    SpringLinks
  description:  a set of links that expand from / collapse to a main button
 ----------------------------------------------------------------------*/
 import React, { Component } from 'react';
@@ -15,34 +15,35 @@ import styled from 'styled-components';
 import theme from 'styled-theming';
 import MediaQuery from 'react-responsive';
 import { withStore } from '@spyna/react-store';
+import ReactResizeDetector from 'react-resize-detector';
 
 
 /* ---------------------------------------------------------------------
  — constants —
 ----------------------------------------------------------------------*/
+// TODO organize project better
+export const SMALL = 479;  // media query switch
+export const BEG_COLOR = 0x2658a8;
+export const END_COLOR = 0xf2df60;
+//export const MAIN_CLOSED_ICON = 'fa fa-moon'
+export const MAIN_CLOSED_ICON = 'fas fa-cog'
+//export const MAIN_CLOSED_ICON = 'fas fa-power-off'
+export const MAIN_OPENED_ICON = 'fa fa-sun'
+
+// TODO organize project better
 // media queries
-const CONSTANTS = {
+export const CONSTANTS = {
     'large': {
-        width: 500,
-        height: 500,
-        main_button_diam: 100,
-        child_button_diam: 70,
+        main_button_diam: 110,
+        child_button_diam: 80,
         margin: 25,
     },
     'small': {
-        width: 310,
-        height: 310,
         main_button_diam: 90,
         child_button_diam: 65,
-        margin: 10,
+        margin: 15,
     }
 }
-
-const SMALL = 479;  // media query switch
-const BEG_COLOR = 0x2658a8;
-const END_COLOR = 0xf2df60;
-const MAIN_CLOSED_ICON = 'fa fa-moon'
-const MAIN_OPENED_ICON = 'fa fa-sun'
 
 const DEG_TO_RAD = Math.PI / 180;
 const toRadians = (deg) => deg * DEG_TO_RAD;
@@ -87,21 +88,21 @@ const lerpColor = (c1, c2, gradient) => {
 
  params:
 
- + constants: constants to use, depending on the viewport
+ + parameters: parameters to use, depending on the viewport
  + percent: progress value between 0 and 1
  + background: background color to use
 ----------------------------------------------------------------------*/
-const mainButtonStyle = (constants, percent, background) => {
+const mainButtonStyle = (parameters, percent, background) => {
     //const deg = 180 * percent;
     const deg = 360 * percent;
 
-    const main_button_diam = constants.main_button_diam;
+    const main_button_diam = parameters.main_button_diam;
 
     return {
         width: main_button_diam,
         height: main_button_diam,
-        top: (constants.height / 2) - main_button_diam / 2,
-        left: (constants.width / 2) - main_button_diam / 2,
+        top: (parameters.height / 2) - main_button_diam / 2,
+        left: (parameters.width / 2) - main_button_diam / 2,
         transform: `rotate(${deg}deg)`,
         backgroundColor: background
     };
@@ -119,16 +120,19 @@ const mainButtonStyle = (constants, percent, background) => {
 
  params:
 
- + constants: constants to use, depending on the viewport
+ + parameters: parameters to use, depending on the viewport
  + index: index of the child
  + percent: progress value between 0 and 1
  + background: background color to use
 ----------------------------------------------------------------------*/
-const childButtonStyle = (constants, index, percent, background) => {
-    const radius = constants.flyout_radius;
-    const child_button_diam = constants.child_button_diam;
-
-    const angle = constants.base_angle + index * constants.separation_angle;
+const childButtonStyle = (parameters, index, percent, background) => {
+    const child_button_diam = parameters.child_button_diam;
+    const w = parameters.width;
+    const h = parameters.height;
+    const radius = ((Math.min(w, h) / 2)
+                    - (child_button_diam / 2)
+                    - parameters.margin);
+    const angle = parameters.base_angle + index * parameters.separation_angle;
     const dx = radius * Math.cos(toRadians(angle)) * percent;
     const dy = radius * Math.sin(toRadians(angle)) * percent;
     const dX = dx + child_button_diam / 2;
@@ -138,8 +142,8 @@ const childButtonStyle = (constants, index, percent, background) => {
     return {
         width: child_button_diam,
         height: child_button_diam,
-        top: (constants.height / 2) - dY,
-        left: (constants.width / 2) - dX,
+        top: (h / 2) - dY,
+        left: (w / 2) - dX,
         transform: `rotate(${deg}deg)`,
         backgroundColor: background,
     };
@@ -165,9 +169,9 @@ const _ChildLink = (props) => {
     const Type = type; 
 
     return (
-        <Type {..._props}>
+        <Type {..._props} >
             <i className={icon} />
-            <p>{text}</p>
+            <h2>{text}</h2>
         </Type>
     );
 };
@@ -189,13 +193,15 @@ const ChildLink = styled(_ChildLink)`
     margin: 0px;
     padding: 0px;
 
-    p {
+    h2 {
         margin: 0px;
         padding: 0px;
         font-size: 12px;
+        font-weight: normal;
         text-align: center;
     }
 
+    pointer-events: initial;  /* make sure catch mouse events */
 `;
 
 
@@ -232,11 +238,12 @@ const MainButton = styled(_MainButton)`
     font-weight: lighter;
     font-size: 24px;
     border: 1px solid rgba(0, 0, 0, 0.1);
+    pointer-events: initial;  /* make sure catch mouse events */
 `;
 
 
 /* ---------------------------------------------------------------------
- — "SpingLinks" —
+ — "SpringLinks" —
  
  `SpringLinks` expects to be provided with "progress" values, which is
  an array containing the animation progress value for each link. The
@@ -247,7 +254,8 @@ const MainButton = styled(_MainButton)`
  animation state, and child elements around it, one for each link.
 
  `SpringLinks` renders a main div element, which is responsive (small /
- large modes, small is used for smartphone-like viewport).
+ large modes, small is used for smartphone-like viewport). Overall the
+ main div adapts to the viewport when resized. 
 
  Child elements are initially hidden behind the main element, and when
  the animation run they are positionned evenly around the main element ::
@@ -306,12 +314,12 @@ const MainButton = styled(_MainButton)`
 
     return (
         <SpringSequence currentState={this.state.isOpen} {...props} >
-          <SpingLinks toggleState={toggleAnimation} links={links} />
+          <SpringLinks toggleState={toggleAnimation} links={links} />
         </SpringSequence>
     );
 
 ----------------------------------------------------------------------*/
-class _SpingLinks extends Component {
+class _SpringLinks extends Component {
     // compute all constants given the number of children when created
     // children are positionned evenly around the main element
     constructor(props) {
@@ -326,11 +334,6 @@ class _SpingLinks extends Component {
         for (let [mode, mapping] of Object.entries(CONSTANTS)) {
             const cst = {...mapping};
             this.constants[mode] = cst;
-            let w = cst.width;
-            let h = cst.height;
-            cst['flyout_radius'] = ((Math.min(w, h) / 2)
-                                     - (cst.child_button_diam / 2)
-                                     - cst.margin);
             cst['separation_angle'] = 360 / length;
             cst['fan_angle'] = (length - 1) * cst.separation_angle;
             cst['base_angle'] = (180 - cst.fan_angle) / 2;
@@ -338,26 +341,30 @@ class _SpingLinks extends Component {
     }
 
     // build components to render for given progress values and mode
-    // (mode is the mapping to use in CONSTANTS, i.e viewport size)
-    // progress is an array containnig all progress values, 0 is main
-    content(mode) {
+    // + mode is the mapping to use in CONSTANTS, i.e viewport type
+    // + width and height are the size of the main div that is rendered
+    content(mode, width, height) {
         const progress = this.props.progress;
         const mainPercent = progress[0];
-        const constants = this.constants[mode];
 
         // TODO theme colors
         let bg = lerpColor(BEG_COLOR, END_COLOR, mainPercent);
         bg = '#' + bg.toString(16);  // html hexa notation
 
-        const mainStyle = mainButtonStyle(constants, mainPercent, bg);
+        const params = {
+            ...this.constants[mode],
+            width,
+            height,
+        };
+        const mainStyle = mainButtonStyle(params, mainPercent, bg);
         const mainIcon = mainPercent > 0.5 ? MAIN_OPENED_ICON : MAIN_CLOSED_ICON;
 
         // return a main div containing main and children components
         return (
-            <div>
+            <div className={this.props.className}>
               {this.props.links.map((props, idx) => {
                 const childProps = {
-                    style: childButtonStyle(constants, idx, progress[idx], bg),
+                    style: childButtonStyle(params, idx, progress[idx], bg),
                     key: idx,
                     ...props
                 };
@@ -368,18 +375,35 @@ class _SpingLinks extends Component {
         );
     }
 
-    // returns a wrapping div containing MediaQuery components
-    // rendering their content only when appropriate
+    // returns a wrapping div containing main and children buttons
+    // rendering their content according to width and heigth, and the
+    // viewport type (small / large).
     render() {
+        // TODO : use refreshRate in ReactResizeDetector ?
         return (
-            <div className={this.props.className}>
-              <MediaQuery maxWidth={SMALL}>
-                {this.content("small")}
-              </MediaQuery>
-              <MediaQuery minWidth={SMALL + 1}>
-                {this.content("large")}
-              </MediaQuery>
-            </div>
+            <ReactResizeDetector handleWidth handleHeight>
+              {({ width, height }) => {
+
+                // test environment ?
+                // TODO : https://github.com/maslianok/react-resize-detector/issues/67
+                if (typeof width == "undefined" ) {
+                    const defaultValues = MediaQuery.defaultProps.values;
+                    width = defaultValues.width;
+                    height = defaultValues.height;
+                }
+
+                return (
+                    <div className={this.props.className} ref={this._div} >
+                      <MediaQuery maxWidth={SMALL}>
+                        {this.content("small", width, height)}
+                      </MediaQuery>
+                      <MediaQuery minWidth={SMALL + 1}>
+                        {this.content("large", width, height)}
+                      </MediaQuery>
+                    </div>
+                );
+              }}
+            </ReactResizeDetector>
         );
     }
 
@@ -391,23 +415,16 @@ class _SpingLinks extends Component {
 }
 
 
-const SpingLinks = styled(_SpingLinks)`
-    background-color: #A0A0A0;
-    /*background-color: inherit;*/
+const SpringLinks = styled(_SpringLinks)`
+    /*background-color: #A0A0A0;*/
+    background: rgba(0,0,0,0);
     position: relative;
-
-    --w: ${CONSTANTS['large'].width}px;
-    --h: ${CONSTANTS['large'].height}px;
-
-    @media (max-width: ${SMALL}px) {
-        --w: ${CONSTANTS['small'].width}px;
-        --h: ${CONSTANTS['small'].height}px;
-    }
-
-    width: var(--w);
-    height: var(--h);
-    left: 0; /*calc(50vw - var(--w)/2);*/
-    top: 0; /*calc(50% - var(--h)/2);*/
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    pointer-events: none;  /* dont catch mouse events */
 `;
 
-export default withStore(SpingLinks);
+export default withStore(SpringLinks);

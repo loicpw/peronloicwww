@@ -137,7 +137,7 @@ class Header extends Component {
               <FixedHeader ref={this._content}>
                 {this.props.children}
               </FixedHeader>
-              <div style={{height: `${this.state.height}px`}} />
+              <div style={{height: `${this.state.height}px`, position: 'relative'}} />
             </header>
         );
     }

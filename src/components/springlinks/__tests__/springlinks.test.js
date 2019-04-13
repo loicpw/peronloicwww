@@ -11,17 +11,17 @@ const CLOSED_BACKGROUND = 'rgb(38, 88, 168)';
 const OPENED_BACKGROUND = 'rgb(242, 223, 96)';
 const CONSTANTS = {
     'small': {
-        CHILD_START_POS: 123,
+        CHILD_START_POS: 207,
         CHILD_END_POS: {
-            link1: 123 - 113,
-            link2: 123 + 112,  // actual value is 122.5 not 123
+            link1: 15,
+            link2: 399,
         },
     },
     'large': {
-        CHILD_START_POS: 215,
+        CHILD_START_POS: 360,
         CHILD_END_POS: {
-            link1: 215 - 190,
-            link2: 215 + 190,
+            link1: 25,
+            link2: 695,
         },
     },
 };
@@ -321,7 +321,7 @@ describe('SpringLinks component', () => {
     it('should run the animation when the main button is clicked #large', () => {
         // enforce viewport size otherwise MediaQuery won't render
         MediaQuery.defaultProps = {
-            values: { width: 800 },
+            values: { width: 800, height: 800 },
         };
 
         openAnimationCase('large');
@@ -330,7 +330,7 @@ describe('SpringLinks component', () => {
     it('should run the animation when the main button is clicked #small', () => {
         // enforce viewport size otherwise MediaQuery won't render
         MediaQuery.defaultProps = {
-            values: { width: 479 },
+            values: { width: 479, height: 479 },
         };
 
         openAnimationCase('small');
@@ -339,7 +339,7 @@ describe('SpringLinks component', () => {
     it('should rollback the animation when the main button is clicked when opened', () => {
         // enforce viewport size otherwise MediaQuery won't render
         MediaQuery.defaultProps = {
-            values: { width: 800 },
+            values: { width: 800, height: 800 },
         };
         const {getByTestId, getByRole, container} = render(<MockAnimation />);
         const main = getByTestId('main-button');
@@ -376,7 +376,7 @@ describe('SpringLinks component', () => {
     it('should rollback the animation when the main button is clicked while opening', () => {
         // enforce viewport size otherwise MediaQuery won't render
         MediaQuery.defaultProps = {
-            values: { width: 800 },
+            values: { width: 800, height: 800 },
         };
         const {getByTestId, getByRole, container} = render(<MockAnimation />);
         const main = getByTestId('main-button');

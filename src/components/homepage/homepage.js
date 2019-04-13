@@ -14,33 +14,48 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
 import SpringSequence from '../springsequence';
-import SpingLinks from '../springlinks';
+import SpingLinks, { CONSTANTS as SpringLinksConstants, BEG_COLOR } from '../springlinks';
 import { withStore } from '@spyna/react-store';
 import {Link} from 'react-router-dom'; 
 
-
-// TODO
-// hardcoded links
-const URLS = {
-    linkedin: "https://linkedin.com/in/loicpw",
-    github: "https://github.com/loicpw",
-    resume: "https://s3.amazonaws.com/loicpw-share-public/resume.pdf",
-    blog: "/blog",
-    projects: "/projects",
-    contact: "/contact",
+// TODO organize project better
+const STATIC = "https://loicpw.com/static";
+const getAPI = (path) => STATIC + '/' + path;
+const ASSETS = {
+    backgroundImage: getAPI('images/mountain-view-1.jpg'),
+    backgroundLayer1: getAPI('images/lightray.jpg'),
+    backgroundLayer2: getAPI('images/sunray.png'),
+    presentationText: getAPI('text/introduction.txt'),
+    zenOfTheDayText: getAPI('text/zen.txt'),
+    resume: getAPI('data/resume'),
+    linkedin: getAPI('data/linkedin'),
+    github: getAPI('data/github'),
+    blog: getAPI('data/blog'),
+    projects: getAPI('data/projects'),
 };
 
+// TODO organize project better
+export const SMALL = 479;  // media query switch
+const BG_COLOR1 = '#' + BEG_COLOR.toString(16) + '39';  // html hexa notation
+const BG_COLOR2 = '#' + BEG_COLOR.toString(16) + '99';  // html hexa notation
+
+// TODO organize project better
 // home page state
 export const STATE_ACTIVE = 'homepage.isActive';
 export const INITIAL_STATE = {}
 INITIAL_STATE[STATE_ACTIVE] = false;
 
-// links to display on home page
+// TODO organize project better 
+// the links values are downloaded using 'value' in
+// 'data-link' as key in the ASSETS mapping
 const LINKS = [
     {
         type: 'a',
         text: "resume",
-        href: URLS['resume'],
+        'data-link': {
+            type: "href",
+            value: 'resume'
+        },
         target: ':blank',
         icon: "far fa-file-alt",
         "data-testid": 'link1',
@@ -48,38 +63,51 @@ const LINKS = [
     {
         type: 'a',
         text: "contact",
-        onClick: () => alert(`TODO: ${URLS["contact"]}`),
+        onClick: () => alert('TODO: contact'),
         target: ':blank',
         icon: "fa fa-at",
     },
     {
         type: 'a',
         text: "profile",
-        href: URLS['linkedin'],
+        'data-link': {
+            type: "href",
+            value: 'linkedin'
+        },
         target: ':blank',
         icon: "fab fa-linkedin",
     },
     {
         type: 'a',
         text: "github",
-        href: URLS['github'],
+        'data-link': {
+            type: "href",
+            value: 'github'
+        },
         target: ':blank',
         icon: "fab fa-github",
     },
     {
         type: Link,
         text: "blog",
-        to: URLS['blog'],
+        'data-link': {
+            type: "to",
+            value: 'blog'
+        },
         icon: "far fa-newspaper",
     },
     {
         type: Link,
         text: "projects",
-        to: URLS['projects'],
+        'data-link': {
+            type: "to",
+            value: 'projects'
+        },
         icon: "fas fa-cubes",
     },
 ];
 
+// TODO organize project better
 // parameters for the animation
 const ANIMATION = {
     stiffness:  210,
@@ -87,6 +115,309 @@ const ANIMATION = {
     length:     LINKS.length,
 };
 
+
+/* ---------------------------------------------------------------------
+ — "Background" —
+ 
+ the home page's background, expecting to receive 'progress' props,
+ which is an array containing progress values of the home page animation.
+ `Background` will use the main (index 0) value. See `HomePage` for
+ details.
+
+ The background change the aspect of the images according to the main
+ animation's progress value, changing the opacity / size of the images.
+
+ .. seealso:: `SpringSequence` forwards the "progress" property to all
+    its children components.
+
+ renders a div containing background images. The div has an "absolute"
+ position so it's integrated in the home page div seamlessly.
+----------------------------------------------------------------------*/
+class _Background extends Component {
+    //
+    render() {
+        // render components wrapped into a main div
+        // TODO organize project better
+        const layer1 = ASSETS.backgroundLayer1;
+        const layer2 = ASSETS.backgroundLayer2;
+        const p = this.props.progress[0];
+        // first img increase opacity
+        const layer1Style = {
+            opacity: p / 5,
+        }
+        // second img increase opacity and size (spread effect)
+        const layer2Style = {
+            opacity: p / 2.2,
+            width: `${p * 100}%`,
+            height: `${p * 100}%`,
+        }
+        // images are rendered centered on top of each other
+        return (
+            <div className={this.props.className} >
+              <img src={layer1} className={'layer1img'} style={layer1Style} />
+              <img src={layer2} style={layer2Style} />
+            </div>
+        );
+    }
+}
+
+
+const Background = styled(_Background)`
+    position: absolute;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;  /* dont catch mouse events */
+
+    img {
+        position: absolute;
+    }
+
+    .layer1img {
+        background: rgb(255, 255, 255, 1);
+        width: 100%;
+        height: 100%;
+    }
+`;
+
+
+/* ---------------------------------------------------------------------
+ — "DownloadText" —
+ 
+ HOC to display text on the home page, the component downloads the plain
+ text content from the specified adress.
+ A 'Missing text' placeholder is used until the content is downloaded.
+
+ The content is passed as props to the wrapped component as 'text'
+
+ parameters:
+
+ + content: path of the content (plain text content)
+----------------------------------------------------------------------*/
+const DownloadText = (WrappedComponent, content) => {
+    return class extends Component {
+        _isMounted = false;  // prevent setState if unmounted (Http request)
+    
+        //
+        constructor(props) {
+            super(props);
+    
+            // get text from static assets repos using API
+            // update text asap, see componentDidMount
+            this.state = {
+                text: 'Missing text',
+            };
+        }
+    
+        // handle this in componentDidMount to be sure we dont change the
+        // state before the component is mounted (ex: automated tests)
+        componentDidMount() {
+            this._isMounted = true;
+    
+            // the text is stored in a text file, get plain text from API
+            const Http = new XMLHttpRequest();
+            // TODO organize project better
+            Http.open("GET", content);
+            Http.onload = () => {
+                if (this._isMounted) {
+                    this.setState({ text: Http.responseText });
+                }
+            };
+            Http.send();
+        }
+    
+        // prevent setState if unmounted (Http request)
+        componentWillUnmount() {
+            this._isMounted = false;
+        }
+    
+        // render the Wrapped component with 'text'
+        render() {
+            return <WrappedComponent text={this.state.text} {...this.props} />;
+        }
+    };
+}
+
+
+/* ---------------------------------------------------------------------
+ — "PresentationText" —
+
+ .. seealso:: `DownloadText`
+ 
+ shows presentation text content from static assets on top of the page,
+ the component is slided up and disappear when the animation run.
+
+ the text content is downloaded from the API (text/introduction.txt)
+----------------------------------------------------------------------*/
+class _PresentationText extends Component {
+    // the text is centered between the top border and the main button
+    // when the button expands (animation) the text is slided up and
+    // eventually disappear
+    render() {
+        const progress = this.props.progress[0];
+        const style = {
+            top: `${-50  * progress}%`,
+        };
+        const testid = { 'data-testid': 'PresentationText' };
+        return (
+            <div className={this.props.className} style={style} {...testid}>
+              <div>
+                <p>
+                  {this.props.text}
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent feugiat risus non lacus venenatis, ut mollis enim tristique. Mauris in orci eu urna aliquam porta. Fusce condimentum nec velit ac fringilla. Sed scelerisque lacus id metus pulvinar fringilla. Mauris eget nunc ut justo lobortis ullamcorper. Vivamus ac suscipit dui. Donec convallis ut dui non pharetra. Praesent sit amet massa consectetur, malesuada enim vel, pharetra dolor.
+                </p>
+              </div>
+            </div>
+        );
+    }
+}
+
+
+const PresentationText = styled(DownloadText(_PresentationText,
+                                             ASSETS.presentationText))`
+    margin-top: 10px;
+    padding: 0px;
+    z-index: 0;
+
+    width: calc(100% - 20px);
+    height: calc(50% - 10px);
+
+    position: absolute;
+    background-color: ${BG_COLOR1};
+    display: flex;
+    overflow-y: scroll;
+
+    div {
+        display: flex;
+        overflow-y: scroll;
+        margin: 7px;
+        margin-bottom: ${SpringLinksConstants.large.main_button_diam / 2}px;
+        @media (max-width: ${SMALL}px) {
+            margin-bottom: ${SpringLinksConstants.small.main_button_diam / 2}px;
+        }
+    }
+
+    p {
+        margin: 0px;
+        padding: 0px;
+        color: white;
+        font-size: 18px;
+        text-align: justify;
+
+        @media (max-width: ${SMALL}px) {
+            font-size: 14px;
+        }
+    }
+`;
+
+
+/* ---------------------------------------------------------------------
+ — "ZenOfTheDayText" —
+ 
+ .. seealso:: `DownloadText`
+
+ randomly pick one of the zen quotes from static assets and display it
+ on the bottom of the page.
+
+ The component is slided down and disappear when the animation run.
+
+ the quotes are downloaded from the static assets (API). The data is
+ expected to be a json list in plain text.
+----------------------------------------------------------------------*/
+class _ZenOfTheDayText extends Component {
+    _random = Math.random();  // randomly choose a quote in the list
+
+    // the text is centered between the main button and the bottom
+    // when the button expands (animation) the text is slided down and
+    // eventually disappear
+    render() {
+        const progress = this.props.progress[0];
+        const style = {
+            top: `${50 + 50  * progress}%`,
+            height: `calc(${50 - 50 * progress}% - 10px)`,
+        };
+        const testid = { 'data-testid': 'ZenOfTheDayText' };
+
+        // choose a quote in the downloaded list
+        let text = this.props.text;
+        try {
+            let list = JSON.parse(text);
+            text = list[Math.floor(this._random * list.length)];
+        } catch(err) {}
+
+        return (
+            <div className={this.props.className} style={style} {...testid}>
+              <div>
+                <h2>
+                  Zen of the day:
+                </h2>
+                <p>
+                  {text}
+                </p>
+              </div>
+            </div>
+        );
+    }
+}
+
+
+const ZenOfTheDayText = styled(DownloadText(_ZenOfTheDayText,
+                                            ASSETS.zenOfTheDayText))`
+    margin-bottom: 10px;
+    padding: 0px;
+    z-index: 0;
+
+    width: calc(100% - 20px);
+
+    position: absolute;
+    background-color: ${BG_COLOR2};
+    display: flex;
+    overflow-y: scroll;
+
+    div {
+        width: 100%
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-y: scroll;
+        margin: 7px;
+        margin-top: ${SpringLinksConstants.large.main_button_diam / 2}px;
+        @media (max-width: ${SMALL}px) {
+            margin-top: ${SpringLinksConstants.small.main_button_diam / 2}px;
+        }
+    }
+
+    h2 {
+        margin: 0px;
+        padding: 0px;
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+        text-align: center;
+
+        @media (max-width: ${SMALL}px) {
+            font-size: 14px;
+        }
+    }
+
+    p {
+        font-style: italic;
+        margin: 0px;
+        padding: 0px;
+        color: white;
+        font-size: 18px;
+        text-align: center;
+
+        @media (max-width: ${SMALL}px) {
+            font-size: 14px;
+        }
+    }
+`;
 
 
 /* ---------------------------------------------------------------------
@@ -101,28 +432,96 @@ const ANIMATION = {
  .. seealso:: `SpringSequence` forwards the "progress" property to all
     its children components.
 
- TODO: text
- TODO: background
-
  renders the wrapping `SpringSequence` component (renders a div).
 
  Layout ::
     
     + ---------------------------------- +
-    |        TEXT TODO  component        |
+    |    PresentationText  component     |
     + ---------------------------------- +
     |                                    |
     |       SpringLinks component        |
     |                                    |
     + ---------------------------------- +
+    |     ZenOfTheDayText  component     |
+    + ---------------------------------- +
 
  .. seealso:: `SpringLinks` component
 ----------------------------------------------------------------------*/
 class _HomePage extends Component {
+    _isMounted = false;  // prevent setState if unmounted (Http request)
+
     //
     constructor(props) {
         super(props);
         this.toggleAnimation = this.toggleAnimation.bind(this);
+
+        // get link values from static assets repos using API
+        // update links asap
+        
+        // setupLink: process one item in 'LINKS':
+        // search for 'data-link' key in the object,
+        // 'data-link' should be as followings:
+        //
+        //   { 
+        //      type,  // type of link, ex: 'a' or Link (see SpringLinks)
+        //      value, // path of the link value
+        //   }
+        //
+        // then create a XMLHttpRequest to obtain the link value from
+        // the API. Once the value is obtained, the state of HomePage
+        // is updated.
+        // A "missing link" placeholder is set as link value until then.
+        const setupLink = (link, index) => {
+            const _link = {...link};
+            const data = _link['data-link'];
+            if (data) {
+                _link[data.type] = "missing link";
+                const Http = new XMLHttpRequest();
+                // TODO organize project better
+                Http.open("GET", ASSETS[data.value]);
+
+                Http.onload = () => {
+                    const current = this.state.links
+                    const update = {...current[index]};
+                    const resp = JSON.parse(Http.responseText);
+                    update[`${data.type}`] = resp.Items[0].link.S;
+                    if (this._isMounted) {
+                        this.setState({ 
+                            links: [
+                                ...current.slice(0,index),
+                                update,
+                                ...current.slice(index + 1),
+                            ]
+                        });
+                    }
+                };
+
+                _link['data-link'] = Http;
+            } 
+            return _link;
+        }
+
+        // init the state
+        this.state = { links: LINKS.map(setupLink) };
+    }
+
+    // handle this in componentDidMount to be sure we dont change the
+    // state before the component is mounted (ex: automated tests)
+    componentDidMount() {
+        this._isMounted = true;
+
+        // get the XMLHttpRequest for each link and send it
+        this.state.links.forEach((link) => {
+            const http = link['data-link'];
+            if (http)
+                http.send();
+        });
+    }
+
+    // prevent setState if unmounted (Http request)
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     //
@@ -137,10 +536,10 @@ class _HomePage extends Component {
         // render components wrapped into SpringSequence
         return (
             <SpringSequence {...props} >
-              <p style={{margin: "0px", color: "black"}}>
-                THIS IS HOME PAGE
-              </p>
-              <SpingLinks toggleState={this.toggleAnimation} links={LINKS} />
+              <PresentationText />
+              <ZenOfTheDayText />
+              <Background />
+              <SpingLinks toggleState={this.toggleAnimation} links={this.state.links} />
             </SpringSequence>
         );
     }
@@ -155,14 +554,19 @@ class _HomePage extends Component {
 
 
 const HomePage = styled(_HomePage)`
-    background-color: white;                                                    
-    margin: 0px;                                                                
-    padding: 0px;                                                               
-    display: flex;                                                              
-    flex-direction: column;                                                     
-    align-items: center;                                                        
-    justify-content: center;                                                    
-    height: 100%;                                                               
+    /* TODO organize project better */
+    background-image: url(${ASSETS.backgroundImage}) ;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    position: relative;
+    margin: 0px;
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     width: 100%;
 `;
 
