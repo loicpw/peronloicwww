@@ -14,8 +14,9 @@ this is my personal website repository
 
 This project was bootstrapped with `Create React App`_.
 
-( >>>>>>> **WORK IN PROGRESS** <<<<<<< )
+Serverless website hosted on AWS.
 
+Home page ( this is a work in progress ): https://loicpw.com
 
 install and test
 =======================
