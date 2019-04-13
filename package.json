@@ -7,6 +7,8 @@
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
     "react-motion": "^0.5.2",
+    "react-resize-detector": "^4.0.5",
+    "react-responsive": "^6.1.1",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
@@ -43,6 +45,11 @@
     ]
   },
   "devDependencies": {
-    "coveralls": "^3.0.3"
+    "coveralls": "^3.0.3",
+    "mock-raf": "^1.0.1",
+    "react-testing-library": "^6.0.3",
+    "rewiremock": "^3.13.3",
+    "sinon": "^7.3.1",
+    "xhr-mock": "^2.4.1"
   }
 }
