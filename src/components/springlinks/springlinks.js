@@ -11,7 +11,7 @@
 import React, { Component } from 'react';
 import './springlinks.css';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { withTheme } from 'styled-components';
 import theme from 'styled-theming';
 import MediaQuery from 'react-responsive';
 import { withStore } from '@spyna/react-store';
@@ -23,8 +23,6 @@ import ReactResizeDetector from 'react-resize-detector';
 ----------------------------------------------------------------------*/
 // TODO organize project better
 export const SMALL = 479;  // media query switch
-export const BEG_COLOR = 0x2658a8;
-export const END_COLOR = 0xf2df60;
 //export const MAIN_CLOSED_ICON = 'fa fa-moon'
 export const MAIN_CLOSED_ICON = 'fas fa-cog'
 //export const MAIN_CLOSED_ICON = 'fas fa-power-off'
@@ -47,6 +45,17 @@ export const CONSTANTS = {
 
 const DEG_TO_RAD = Math.PI / 180;
 const toRadians = (deg) => deg * DEG_TO_RAD;
+
+
+/* ---------------------------------------------------------------------
+ — theme —
+----------------------------------------------------------------------*/
+const BEG_COLOR = theme('mode', {
+    default: props => props.theme.primary,
+});
+const END_COLOR = theme('mode', {
+    default: props => props.theme.secondary,
+});
 
 
 /* ---------------------------------------------------------------------
@@ -90,9 +99,8 @@ const lerpColor = (c1, c2, gradient) => {
 
  + parameters: parameters to use, depending on the viewport
  + percent: progress value between 0 and 1
- + background: background color to use
 ----------------------------------------------------------------------*/
-const mainButtonStyle = (parameters, percent, background) => {
+const mainButtonStyle = (parameters, percent) => {
     //const deg = 180 * percent;
     const deg = 360 * percent;
 
@@ -104,7 +112,6 @@ const mainButtonStyle = (parameters, percent, background) => {
         top: (parameters.height / 2) - main_button_diam / 2,
         left: (parameters.width / 2) - main_button_diam / 2,
         transform: `rotate(${deg}deg)`,
-        backgroundColor: background
     };
 };
 
@@ -146,6 +153,7 @@ const childButtonStyle = (parameters, index, percent, background) => {
         left: (w / 2) - dX,
         transform: `rotate(${deg}deg)`,
         backgroundColor: background,
+        opacity: 0.9,
     };
 };
 
@@ -239,6 +247,11 @@ const MainButton = styled(_MainButton)`
     font-size: 24px;
     border: 1px solid rgba(0, 0, 0, 0.1);
     pointer-events: initial;  /* make sure catch mouse events */
+    background-color: ${BEG_COLOR};
+    font-size: 140%;
+    border-style: solid;
+    border-width: thin;
+    border-color: ${END_COLOR};
 `;
 
 
@@ -347,8 +360,9 @@ class _SpringLinks extends Component {
         const progress = this.props.progress;
         const mainPercent = progress[0];
 
-        // TODO theme colors
-        let bg = lerpColor(BEG_COLOR, END_COLOR, mainPercent);
+        const begColor = parseInt(BEG_COLOR(this.props).replace('#',''), 16);
+        const endColor = parseInt(END_COLOR(this.props).replace('#',''), 16);
+        let bg = lerpColor(begColor, endColor, mainPercent);
         bg = '#' + bg.toString(16);  // html hexa notation
 
         const params = {
@@ -356,7 +370,7 @@ class _SpringLinks extends Component {
             width,
             height,
         };
-        const mainStyle = mainButtonStyle(params, mainPercent, bg);
+        const mainStyle = mainButtonStyle(params, mainPercent);
         const mainIcon = mainPercent > 0.5 ? MAIN_OPENED_ICON : MAIN_CLOSED_ICON;
 
         // return a main div containing main and children components
@@ -427,4 +441,4 @@ const SpringLinks = styled(_SpringLinks)`
     pointer-events: none;  /* dont catch mouse events */
 `;
 
-export default withStore(SpringLinks);
+export default withStore(withTheme(SpringLinks));

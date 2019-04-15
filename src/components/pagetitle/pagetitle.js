@@ -14,6 +14,19 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
 
+// TODO organize project better
+const TITLE = "Loïc's yard";
+const ICON = "fas fa-tree";  
+
+
+/* ---------------------------------------------------------------------
+ — theme —
+----------------------------------------------------------------------*/
+const COLOR = theme('mode', {
+    default: props => props.theme.primary,
+});
+
+
 
 /* ---------------------------------------------------------------------
  — "PageTitle" —
@@ -23,16 +36,12 @@ import theme from 'styled-theming';
  The `PageTitle` should be unique and added to the header section.
 
  renders an "h1" element.
-
- expected props:
-
- + text: text to display (default = "no title")
 ----------------------------------------------------------------------*/
 class _PageTitle extends Component {
     render() {
         return (
             <h1 className={this.props.className}>
-              {this.props.text}
+              {this.props.text} <i className={this.props.icon} />
             </h1>
         );
     }
@@ -40,16 +49,19 @@ class _PageTitle extends Component {
 
 
 _PageTitle.defaultProps = {
-    text: 'no title',
+    text: TITLE,
+    icon: ICON,
 };
 
-// TODO
+
 const PageTitle = styled(_PageTitle)`
+    color: ${COLOR};
     margin: 5px;
-    margin-top: 10px;
+    margin-top: 7px;
+    margin-bottom: 0px;
     margin-left: 0px;
-    /*text-align: center;*/
     width: 100%;
+    font-size: 170%;
 `;
 
 export default PageTitle;

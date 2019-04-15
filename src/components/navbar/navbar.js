@@ -17,6 +17,40 @@ import {Link} from 'react-router-dom';
 
 
 /* ---------------------------------------------------------------------
+ — theme —
+----------------------------------------------------------------------*/
+const FONT_COLOR = theme('mode', {
+    default: props => props.theme.primary,
+});
+const BACKGROUND_COLOR = theme('mode', {
+    default: props => props.theme.secondary,
+});
+
+
+/* ---------------------------------------------------------------------
+ - GitHubLink -
+
+ Hard coded link to github repos
+ TODO organize project better
+--------------------------------------------------------------------- */
+const _GitHubLink = (props) => (
+    <a className={props.className} href={"https://github.com/loicpw/peronloicwww"} target={'_blank'}>
+      <i className={'fab fa-github'} /> edit on github
+    </a>
+);
+
+const GitHubLink = styled(_GitHubLink)`
+    margin: 0px;
+    padding: 0px;
+    text-align: right;
+    text-decoration: none;
+    color: ${FONT_COLOR};
+    font-size: 80%;
+    font-style: italic;
+`;
+
+
+/* ---------------------------------------------------------------------
  — "NavBarItem" —
 
  create a `react-router-dom.Link` component to link to the given path
@@ -43,11 +77,22 @@ class _NavBarItem extends Component {
 }
 
 
-// TODO
 const NavBarItem = styled(_NavBarItem)`
     text-align: left;
-    margin: 10px;
+    margin: 0px;
+    padding: 5px;
+    padding-bottom: 0px;
+    padding-top: 0px;
     text-decoration: none;
+    color: ${BACKGROUND_COLOR};
+    font-style: italic;
+    font-size: 100%;
+    display: flex;
+
+    :hover {
+        background-color: ${BACKGROUND_COLOR};
+        color: ${FONT_COLOR};
+    } 
 `;
 
 
@@ -55,16 +100,13 @@ const NavBarItem = styled(_NavBarItem)`
  — "NavBarItemsList" —
 
  styled ul (unordered list) adapted to the navbar
-
-TODO
 ----------------------------------------------------------------------*/
 const NavBarItemsList = styled.ul`
-    display: flex;
-    flex-direction: row;
-    color: palevioletred;
     margin: 0px;
     padding: 0px;
     list-style: none;
+    flex-direction: column;
+    border-radius: 5%;
 `;
 
 
@@ -104,18 +146,41 @@ class _NavBar extends Component {
         // return a nav
         return (
             <nav className={this.props.className}>
-              <NavBarItemsList>
-                {links}
-              </NavBarItemsList>
+              <div className={"dropdown"} >
+                <i className={"fas fa-bars"} />
+                <NavBarItemsList className={"dropdown-content"} style={{gridColumn: 1}} >
+                  {links}
+                </NavBarItemsList>
+              </div>
+              <GitHubLink style={{gridColumn: 2}} />
             </nav>
         );
     }
 }
 
 
-// TODO
 const NavBar = styled(_NavBar)`
-    background-color: hsl(100, 50%, 90%); 
+    background-color: #00000000;
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto 1fr;
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+        padding-right: 10px;
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        z-index: 1;
+        background-color: ${FONT_COLOR};
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: flex;
+    }
 `;
 
 export default NavBar;

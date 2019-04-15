@@ -15,29 +15,10 @@ import { INITIAL_STATE as HOMEPAGE_STATE } from './components/homepage';
  — theme —
 
  .. seealsol:: `styled-components`, `styled-theming`
-
- TODO
 ----------------------------------------------------------------------*/
-const palette = {
-    red: "#B03060",
-    orange: "#FE9A76",
-    yellow: "#FFD700",
-    olive: "#32CD32",
-    green: "#016936",
-    teal: "#008080",
-    blue: "#0E6EB8",
-    violet: "#EE82EE",
-    purple: "#B413EC",
-    pink: "#FF1493",
-    brown: "#A52A2A",
-    grey: "#A0A0A0",
-    black: "#000000"
-}
-
 const _theme = {
-    primary: palette.pink,
-    secondary: palette.grey,
-    ...palette
+    primary: '#154360',
+    secondary: '#fbfcfc',
 };
 
 
@@ -96,11 +77,8 @@ const Main = (props) => {
 /* ---------------------------------------------------------------------
  — main views setup —
 
- TODO
+ TODO organize project better
 ----------------------------------------------------------------------*/
-// main title
-const title = "~ website ~";
-
 // main views
 // ( navbar props: name, link )
 // ( main content props: isExact, component, path )
@@ -122,7 +100,7 @@ class App extends Component {
               <div className="App">
                 <AppContent>
                   <Header>
-                    <PageTitle text={title}/>
+                    <PageTitle />
                     <NavBar links={pages} />
                   </Header>
                   <Main routes={pages} />
