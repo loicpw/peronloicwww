@@ -5,10 +5,10 @@ import { createStore } from '@spyna/react-store';
 import { render, fireEvent, cleanup } from 'react-testing-library'
 import MediaQuery from 'react-responsive';
 const sinon = require('sinon');
+// TODO organize project better
+import {createApp, flushPromises} from '../../tests/utils'
 
 
-const CLOSED_BACKGROUND = 'rgb(38, 88, 168)';
-const OPENED_BACKGROUND = 'rgb(242, 223, 96)';
 const CONSTANTS = {
     'small': {
         CHILD_START_POS: 207,
@@ -66,7 +66,7 @@ describe('SpringLinks component', () => {
         },
     ];
 
-    class _MockAnimation extends Component {
+    class MockAnimation extends Component {
         constructor(props) {
             super(props);
             this.state = { isOpen: false, index: 0, idle: true };
@@ -120,8 +120,6 @@ describe('SpringLinks component', () => {
         }
     }
     
-    const MockAnimation = createStore(_MockAnimation, {});
-
     // create functions to test each step in the animation sequence
     // main: main button
     // children: array containing the children buttons
@@ -155,7 +153,6 @@ describe('SpringLinks component', () => {
             [main, ...children].forEach(elm => {
                 //console.log('style:', elm.style);
                 expect(elm.style.transform).toEqual('rotate(0deg)');
-                expect(elm.style['background-color']).toEqual(CLOSED_BACKGROUND);
             });
             children.forEach(elm => {
                 expect(toInt(elm.style.left)).toEqual(CHILD_START_POS);
@@ -172,11 +169,9 @@ describe('SpringLinks component', () => {
         //
         // -------------------------------------------------------------
         const checkStep1 = () => {
-            [main, ...children].forEach(elm => {
-                //console.log('style:', elm.style);
-                expect(elm.style['background-color']).not.toEqual(CLOSED_BACKGROUND);
-                expect(elm.style['background-color']).not.toEqual(OPENED_BACKGROUND);
-            });
+            /*[main, ...children].forEach(elm => {
+                console.log('style:', elm.style);
+            });*/
             [main, link1].forEach(elm => {
                 expect(elm.style.transform).toEqual('rotate(72deg)');
             });
@@ -267,7 +262,6 @@ describe('SpringLinks component', () => {
             //[main, ...children].forEach(elm => console.log('style:', elm.style));
             [main, ...children].forEach(elm => {
                 expect(elm.style.transform).toEqual('rotate(360deg)');
-                expect(elm.style['background-color']).toEqual(OPENED_BACKGROUND);
             });
             children.forEach(elm => expect(toInt(elm.style.top)).toEqual(CHILD_START_POS));
             expect(toInt(link1.style.left)).toEqual(CHILD_END_POS.link1);
@@ -289,7 +283,10 @@ describe('SpringLinks component', () => {
 
     // test animation opening (progress 0% to 100%)
     const openAnimationCase = (media) => {
-        const {getByTestId, getByRole, container} = render(<MockAnimation />);
+        const App = createApp({});
+        const {getByTestId, getByRole, container} = render(
+            <App><MockAnimation />)</App>
+        );
         const main = getByTestId('main-button');
         const link1 = getByRole('link1');
         const link2 = getByRole('link2');
@@ -341,7 +338,10 @@ describe('SpringLinks component', () => {
         MediaQuery.defaultProps = {
             values: { width: 800, height: 800 },
         };
-        const {getByTestId, getByRole, container} = render(<MockAnimation />);
+        const App = createApp({});
+        const {getByTestId, getByRole, container} = render(
+            <App><MockAnimation />)</App>
+        );
         const main = getByTestId('main-button');
         const link1 = getByRole('link1');
         const link2 = getByRole('link2');
@@ -378,7 +378,10 @@ describe('SpringLinks component', () => {
         MediaQuery.defaultProps = {
             values: { width: 800, height: 800 },
         };
-        const {getByTestId, getByRole, container} = render(<MockAnimation />);
+        const App = createApp({});
+        const {getByTestId, getByRole, container} = render(
+            <App><MockAnimation />)</App>
+        );
         const main = getByTestId('main-button');
         const link1 = getByRole('link1');
         const link2 = getByRole('link2');

@@ -13,6 +13,8 @@ import {spring} from "react-motion";
 import HttpMock from 'xhr-mock';
 // TODO see link below:
 import { dependencies } from '../../springsequence';
+// TODO organize project better
+import {createApp, flushPromises} from '../../tests/utils'
 
 
 describe('homepage component', () => {
@@ -97,21 +99,9 @@ describe('homepage component', () => {
         cleanup();
     });
 
-    // Http requests callbacks (mock)
-    const flushPromises = () => {
-        return new Promise(resolve => setImmediate(resolve));
-    };
-
     it('renders without crashing', async () => {
-        const _App = () => {
-            return (
-                <Router>
-                    <HomePage />
-                </Router>
-            );
-        }
-        const App = createStore(_App, INITIAL_STATE);
-        const {getByTestId, container} = render(<App />);
+        const App = createApp(INITIAL_STATE);
+        const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
 
         // check the 'ZenOfTheDay' text has been taken from the list
@@ -121,15 +111,8 @@ describe('homepage component', () => {
     });
 
     it('should run the animation when click on main button', async () => {
-        const _App = (props) => {
-            return (
-                <Router>
-                    <HomePage />
-                </Router>
-            );
-        }
-        const App = createStore(_App, INITIAL_STATE);
-        const {getByTestId, container} = render(<App />);
+        const App = createApp(INITIAL_STATE);
+        const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');
         const link1 = getByTestId('link1');
@@ -172,15 +155,8 @@ describe('homepage component', () => {
     });
 
     it('should rollback the animation when click on main button again', async () => {
-        const _App = (props) => {
-            return (
-                <Router>
-                    <HomePage />
-                </Router>
-            );
-        }
-        const App = createStore(_App, INITIAL_STATE);
-        const {getByTestId, container} = render(<App />);
+        const App = createApp(INITIAL_STATE);
+        const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');
         const link1 = getByTestId('link1');
@@ -209,15 +185,8 @@ describe('homepage component', () => {
     });
 
     it('should rollback the animation when click on main button while animation is running', async () => {
-        const _App = (props) => {
-            return (
-                <Router>
-                    <HomePage />
-                </Router>
-            );
-        }
-        const App = createStore(_App, INITIAL_STATE);
-        const {getByTestId, container} = render(<App />);
+        const App = createApp(INITIAL_STATE);
+        const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');
         const link1 = getByTestId('link1');

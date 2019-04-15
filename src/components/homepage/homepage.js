@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
 import SpringSequence from '../springsequence';
-import SpingLinks, { CONSTANTS as SpringLinksConstants, BEG_COLOR } from '../springlinks';
+import SpingLinks, { CONSTANTS as SpringLinksConstants } from '../springlinks';
 import { withStore } from '@spyna/react-store';
 import {Link} from 'react-router-dom'; 
 
@@ -22,9 +22,7 @@ import {Link} from 'react-router-dom';
 const STATIC = "https://loicpw.com/static";
 const getAPI = (path) => STATIC + '/' + path;
 const ASSETS = {
-    backgroundImage: getAPI('images/mountain-view-1.jpg'),
-    backgroundLayer1: getAPI('images/lightray.jpg'),
-    backgroundLayer2: getAPI('images/sunray.png'),
+    backgroundLayer1: getAPI('images/lightray.png'),
     presentationText: getAPI('text/introduction.txt'),
     zenOfTheDayText: getAPI('text/zen.txt'),
     resume: getAPI('data/resume'),
@@ -33,11 +31,10 @@ const ASSETS = {
     blog: getAPI('data/blog'),
     projects: getAPI('data/projects'),
 };
+const ZEN_ICON = "fas fa-seedling";
 
 // TODO organize project better
 export const SMALL = 479;  // media query switch
-const BG_COLOR1 = '#' + BEG_COLOR.toString(16) + '39';  // html hexa notation
-const BG_COLOR2 = '#' + BEG_COLOR.toString(16) + '99';  // html hexa notation
 
 // TODO organize project better
 // home page state
@@ -117,6 +114,23 @@ const ANIMATION = {
 
 
 /* ---------------------------------------------------------------------
+ — theme —
+----------------------------------------------------------------------*/
+const BG_COLOR1 = theme('mode', {
+    default: props => props.theme.primary + '60',  // alpha
+});
+const BG_COLOR2 = theme('mode', {
+    default: props => props.theme.primary + 'd9',  // alpha
+});
+const PAGE_BACKGROUND = theme('mode', {
+    default: props => props.theme.secondary,
+});
+const SECONDARY_BACKGROUND = theme('mode', {
+    default: props => props.theme.primary,
+});
+
+
+/* ---------------------------------------------------------------------
  — "Background" —
  
  the home page's background, expecting to receive 'progress' props,
@@ -130,7 +144,7 @@ const ANIMATION = {
  .. seealso:: `SpringSequence` forwards the "progress" property to all
     its children components.
 
- renders a div containing background images. The div has an "absolute"
+ renders a div containing one background image. The div has an "absolute"
  position so it's integrated in the home page div seamlessly.
 ----------------------------------------------------------------------*/
 class _Background extends Component {
@@ -139,23 +153,17 @@ class _Background extends Component {
         // render components wrapped into a main div
         // TODO organize project better
         const layer1 = ASSETS.backgroundLayer1;
-        const layer2 = ASSETS.backgroundLayer2;
         const p = this.props.progress[0];
-        // first img increase opacity
+        // img increase opacity and size (spread effect)
         const layer1Style = {
             opacity: p / 5,
-        }
-        // second img increase opacity and size (spread effect)
-        const layer2Style = {
-            opacity: p / 2.2,
             width: `${p * 100}%`,
             height: `${p * 100}%`,
         }
         // images are rendered centered on top of each other
         return (
-            <div className={this.props.className} >
-              <img src={layer1} className={'layer1img'} style={layer1Style} />
-              <img src={layer2} style={layer2Style} />
+            <div className={this.props.className} style={{opacity: p}}>
+              <img src={layer1} style={layer1Style} />
             </div>
         );
     }
@@ -172,15 +180,10 @@ const Background = styled(_Background)`
     align-items: center;
     justify-content: center;
     pointer-events: none;  /* dont catch mouse events */
+    background-color: ${SECONDARY_BACKGROUND};
 
     img {
         position: absolute;
-    }
-
-    .layer1img {
-        background: rgb(255, 255, 255, 1);
-        width: 100%;
-        height: 100%;
     }
 `;
 
@@ -268,7 +271,6 @@ class _PresentationText extends Component {
               <div>
                 <p>
                   {this.props.text}
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent feugiat risus non lacus venenatis, ut mollis enim tristique. Mauris in orci eu urna aliquam porta. Fusce condimentum nec velit ac fringilla. Sed scelerisque lacus id metus pulvinar fringilla. Mauris eget nunc ut justo lobortis ullamcorper. Vivamus ac suscipit dui. Donec convallis ut dui non pharetra. Praesent sit amet massa consectetur, malesuada enim vel, pharetra dolor.
                 </p>
               </div>
             </div>
@@ -353,7 +355,7 @@ class _ZenOfTheDayText extends Component {
             <div className={this.props.className} style={style} {...testid}>
               <div>
                 <h2>
-                  Zen of the day:
+                  <i className={ZEN_ICON} /> Zen of the day:
                 </h2>
                 <p>
                   {text}
@@ -554,11 +556,7 @@ class _HomePage extends Component {
 
 
 const HomePage = styled(_HomePage)`
-    /* TODO organize project better */
-    background-image: url(${ASSETS.backgroundImage}) ;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+    background-color: ${PAGE_BACKGROUND};
     position: relative;
     margin: 0px;
     padding: 0px;

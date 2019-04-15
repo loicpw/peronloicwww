@@ -14,12 +14,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
 
-
-// TODO - themed background
-const backgroundColor = theme('mode', {
-    default: props => props.theme.grey,
-    light: props => props.theme.pink,
-});
+// TODO organize project better
+const STATIC = "https://loicpw.com/static";
+const getAPI = (path) => STATIC + '/' + path;
 
 
 /* ---------------------------------------------------------------------
@@ -68,19 +65,21 @@ class _FixedHeader extends Component {
 }
 
 
-// TODO
 const FixedHeader = styled(_FixedHeader)`
     position: fixed;
     top: 0px;
     left: 0px;
     margin: 0px;
     padding: 10px;
-    width: 100vw;
+    padding-bottom: 7px;
+    width: calc(100% - 20px);  /* - 2 * padding */
     height: auto;
-    background-color: ${backgroundColor};
+    /*background-color: #ffffff;*/
+    background-image: url(${getAPI('images/header.jpg')});
+    background-position: center;
+    background-size: cover;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     z-index: 1;
 `;
 
