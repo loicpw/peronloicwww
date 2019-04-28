@@ -5,6 +5,23 @@ import { createStore, withStore } from '@spyna/react-store';
 import styled, { ThemeProvider } from 'styled-components';
 
 
+// mock alert
+export const MockAlert = {
+  install: () => {
+    MockAlert.message = undefined;
+    MockAlert.originalAlert = window.alert;
+
+    window.alert = (message) => {
+      MockAlert.message = message;
+    };
+  },
+
+  uninstall: () => {
+    MockAlert.originalAlert = window.alert;
+  }
+};
+
+
 // trigger Http requests callbacks (usefull for xhr-mock)
 export const flushPromises = () => {
     return new Promise(resolve => setImmediate(resolve));

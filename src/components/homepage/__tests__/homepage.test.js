@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import HomePage from '../homepage';
-import { INITIAL_STATE } from '../homepage';
 import { createStore } from '@spyna/react-store';
 const sinon = require('sinon');
 import MediaQuery from 'react-responsive';
@@ -100,7 +99,7 @@ describe('homepage component', () => {
     });
 
     it('renders without crashing', async () => {
-        const App = createApp(INITIAL_STATE);
+        const App = createApp({});
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
 
@@ -111,7 +110,7 @@ describe('homepage component', () => {
     });
 
     it('should run the animation when click on main button', async () => {
-        const App = createApp(INITIAL_STATE);
+        const App = createApp({});
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');
@@ -155,7 +154,7 @@ describe('homepage component', () => {
     });
 
     it('should rollback the animation when click on main button again', async () => {
-        const App = createApp(INITIAL_STATE);
+        const App = createApp({});
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');
@@ -185,7 +184,7 @@ describe('homepage component', () => {
     });
 
     it('should rollback the animation when click on main button while animation is running', async () => {
-        const App = createApp(INITIAL_STATE);
+        const App = createApp({});
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');

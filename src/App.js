@@ -8,7 +8,7 @@ import Header from './components/header';
 import PageTitle from './components/pagetitle';
 import NavBar from './components/navbar';
 import HomePage from './components/homepage';
-import { INITIAL_STATE as HOMEPAGE_STATE } from './components/homepage';
+import ContactPage from './components/contactpage';
 
 
 /* ---------------------------------------------------------------------
@@ -19,6 +19,8 @@ import { INITIAL_STATE as HOMEPAGE_STATE } from './components/homepage';
 const _theme = {
     primary: '#154360',
     secondary: '#fbfcfc',
+    error: '#cc0000',
+    success: '#00bb00',
 };
 
 
@@ -84,6 +86,7 @@ const Main = (props) => {
 // ( main content props: isExact, component, path )
 const pages = [
     {name: "home", link: "/", isExact: true, component: HomePage, path: "/"},
+    {name: "contact", link: "/contact", component: ContactPage, path: "/contact"},
     {name: "todo", link: "/todo/0", component: Todo, path: "/todo/:contentId"},
 ];
 
@@ -120,7 +123,6 @@ class App extends Component {
 ----------------------------------------------------------------------*/
 const initialState = {
     theme: 'default',
-    ...HOMEPAGE_STATE,
 }
 
 
