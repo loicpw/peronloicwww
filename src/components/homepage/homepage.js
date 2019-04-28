@@ -30,17 +30,12 @@ const ASSETS = {
     github: getAPI('data/github'),
     blog: getAPI('data/blog'),
     projects: getAPI('data/projects'),
+    contact: getAPI('data/contact'),
 };
 const ZEN_ICON = "fas fa-seedling";
 
 // TODO organize project better
 export const SMALL = 479;  // media query switch
-
-// TODO organize project better
-// home page state
-export const STATE_ACTIVE = 'homepage.isActive';
-export const INITIAL_STATE = {}
-INITIAL_STATE[STATE_ACTIVE] = false;
 
 // TODO organize project better 
 // the links values are downloaded using 'value' in
@@ -58,10 +53,12 @@ const LINKS = [
         "data-testid": 'link1',
     },
     {
-        type: 'a',
+        type: Link,
+        'data-link': {
+            type: "to",
+            value: 'contact'
+        },
         text: "contact",
-        onClick: () => alert('TODO: contact'),
-        target: ':blank',
         icon: "fa fa-at",
     },
     {
@@ -458,6 +455,10 @@ class _HomePage extends Component {
         super(props);
         this.toggleAnimation = this.toggleAnimation.bind(this);
 
+        // is animation opened or closed
+        const store = this.props.store
+        store.set('homepage', {active: false});
+
         // get link values from static assets repos using API
         // update links asap
         
@@ -529,9 +530,10 @@ class _HomePage extends Component {
     //
     render() {
         // prepare props for SpringSequence
+        const state = this.props.store.get('homepage');
         const props = {
             ...ANIMATION,
-            currentState: this.props.store.get(STATE_ACTIVE) || false,
+            currentState: state.active || false,
             className: this.props.className
         };
 
@@ -546,11 +548,11 @@ class _HomePage extends Component {
         );
     }
 
-    // open / close animation toggling the value of STATE_ACTIVE
+    // open / close animation toggling the homepage' state
     toggleAnimation() {
-        const { store } = this.props;
-        const isOpen = store.get(STATE_ACTIVE);
-        store.set(STATE_ACTIVE, !isOpen);
+        const store = this.props.store;
+        const state = store.get('homepage');
+        store.set('homepage', {active: !state.active});
     }
 }
 
