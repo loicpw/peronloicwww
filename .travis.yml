@@ -9,6 +9,6 @@ script:
   # see https://github.com/facebook/create-react-app/issues/3657
   # ("Treating warnings as errors because process.env.CI = true.")
   - CI=false npm run build
-  - npm test -- --coverage
+  - npm test -- --coverage --collectCoverageFrom=src/components/**/*.js --collectCoverageFrom=src/App.js --collectCoverageFrom='!src/components/tests/*.js'
 after_success:
   - npm run coveralls
