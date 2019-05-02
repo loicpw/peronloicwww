@@ -3,10 +3,8 @@ import ReactDOM from 'react-dom';
 import { createStore } from '@spyna/react-store';
 import { render, fireEvent, cleanup } from 'react-testing-library';
 import HttpMock from 'xhr-mock';
-// TODO organize project better
-import {createApp, flushPromises} from '../../tests/utils';
-// TODO organize project better
-import ContactForm, { EMAIL_API } from '../contactform';
+import {createApp, flushPromises} from 'tests/utils';
+import ContactForm, { EMAIL_API } from 'components/contactform';
 
 
 describe('contactform component', () => {

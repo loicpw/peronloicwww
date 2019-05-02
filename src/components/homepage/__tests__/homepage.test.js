@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import HomePage from '../homepage';
+import HomePage from 'components/homepage';
 import { createStore } from '@spyna/react-store';
 const sinon = require('sinon');
 import MediaQuery from 'react-responsive';
@@ -10,10 +10,9 @@ const createMockRaf = require('mock-raf');
 import rewiremock from 'rewiremock';
 import {spring} from "react-motion";
 import HttpMock from 'xhr-mock';
+import {createApp, flushPromises} from 'tests/utils'
 // TODO see link below:
-import { dependencies } from '../../springsequence';
-// TODO organize project better
-import {createApp, flushPromises} from '../../tests/utils'
+import { dependencies } from 'components/springsequence';
 
 
 describe('homepage component', () => {

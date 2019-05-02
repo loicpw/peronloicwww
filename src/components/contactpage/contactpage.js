@@ -13,7 +13,7 @@ import './contactpage.css';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
-import ContactForm from '../contactform';
+import ContactForm from 'components/contactform';
 
 
 /* ---------------------------------------------------------------------

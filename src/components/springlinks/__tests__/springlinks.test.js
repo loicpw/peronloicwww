@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import SpringLinks from '../springlinks';
+import SpringLinks from 'components/springlinks';
 import { createStore } from '@spyna/react-store';
 import { render, fireEvent, cleanup } from 'react-testing-library'
 import MediaQuery from 'react-responsive';
 const sinon = require('sinon');
-// TODO organize project better
-import {createApp, flushPromises} from '../../tests/utils'
+import {createApp, flushPromises} from 'tests/utils'
 
 
 const CONSTANTS = {

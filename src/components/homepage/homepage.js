@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
 import SpringSequence from '../springsequence';
-import SpingLinks, { CONSTANTS as SpringLinksConstants } from '../springlinks';
+import SpingLinks, { CONSTANTS as SpringLinksConstants } from 'components/springlinks';
 import { withStore } from '@spyna/react-store';
 import {Link} from 'react-router-dom'; 
 

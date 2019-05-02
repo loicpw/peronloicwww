@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ContactPage from '../contactpage';
+import ContactPage from 'components/contactpage';
 import { createStore } from '@spyna/react-store';
 import { render, fireEvent, cleanup, getByTestId, getByText } from 'react-testing-library';
-// TODO organize project better
-import {createApp, flushPromises} from '../../tests/utils'
+import {createApp, flushPromises} from 'tests/utils'
 
 
 describe('contactpage component', () => {

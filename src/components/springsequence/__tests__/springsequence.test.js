@@ -5,7 +5,7 @@ const createMockRaf = require('mock-raf');
 import rewiremock from 'rewiremock';
 import {spring} from "react-motion";
 // TODO see link below:
-import SpringSequence, { dependencies } from '../springsequence';
+import SpringSequence, { dependencies } from 'components/springsequence';
 
 // turns not int values into 'X'
 const simplifyValues = steps => {

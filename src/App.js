@@ -4,11 +4,11 @@ import styled, { ThemeProvider } from 'styled-components';
 import { createStore, withStore } from '@spyna/react-store';
 import { Route, BrowserRouter as Router } from 'react-router-dom';
 // components
-import Header from './components/header';
-import PageTitle from './components/pagetitle';
-import NavBar from './components/navbar';
-import HomePage from './components/homepage';
-import ContactPage from './components/contactpage';
+import Header from 'components/header';
+import PageTitle from 'components/pagetitle';
+import NavBar from 'components/navbar';
+import HomePage from 'components/homepage';
+import ContactPage from 'components/contactpage';
 
 
 /* ---------------------------------------------------------------------
