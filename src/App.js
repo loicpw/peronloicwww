@@ -9,19 +9,8 @@ import PageTitle from 'components/pagetitle';
 import NavBar from 'components/navbar';
 import HomePage from 'components/homepage';
 import ContactPage from 'components/contactpage';
-
-
-/* ---------------------------------------------------------------------
- — theme —
-
- .. seealsol:: `styled-components`, `styled-theming`
-----------------------------------------------------------------------*/
-const _theme = {
-    primary: '#154360',
-    secondary: '#fbfcfc',
-    error: '#cc0000',
-    success: '#00bb00',
-};
+// theme
+import theme from './themes/default';
 
 
 /* ---------------------------------------------------------------------
@@ -33,12 +22,12 @@ const _theme = {
  TODO
 ----------------------------------------------------------------------*/
 const _AppContent = (props) => {
-    const theme = {
+    const _theme = {
         mode: props.store.get('theme'),
-        ..._theme
+        ...theme
     };
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={_theme}>
           <div className='AppContent'>{props.children}</div>
         </ThemeProvider>
     );
