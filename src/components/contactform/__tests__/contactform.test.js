@@ -4,7 +4,9 @@ import { createStore } from '@spyna/react-store';
 import { render, fireEvent, cleanup } from 'react-testing-library';
 import HttpMock from 'xhr-mock';
 import {createApp, flushPromises} from 'tests/utils';
-import ContactForm, { EMAIL_API } from 'components/contactform';
+import ContactForm from 'components/contactform';
+import config from 'config';
+const EMAIL_API = config.email;
 
 
 describe('contactform component', () => {

@@ -17,97 +17,57 @@ import SpringSequence from '../springsequence';
 import SpingLinks, { CONSTANTS as SpringLinksConstants } from 'components/springlinks';
 import { withStore } from '@spyna/react-store';
 import {Link} from 'react-router-dom'; 
+import config from 'config';
+import res from 'resources';
 
 // TODO organize project better
-const STATIC = "https://loicpw.com/static";
-const getAPI = (path) => STATIC + '/' + path;
-const ASSETS = {
-    backgroundLayer1: getAPI('images/lightray.png'),
-    presentationText: getAPI('text/introduction.txt'),
-    zenOfTheDayText: getAPI('text/zen.txt'),
-    resume: getAPI('data/resume'),
-    linkedin: getAPI('data/linkedin'),
-    github: getAPI('data/github'),
-    blog: getAPI('data/blog'),
-    projects: getAPI('data/projects'),
-    contact: getAPI('data/contact'),
-};
 const ZEN_ICON = "fas fa-seedling";
 
 // TODO organize project better
-export const SMALL = 479;  // media query switch
-
-// TODO organize project better 
 // the links values are downloaded using 'value' in
-// 'data-link' as key in the ASSETS mapping
+// 'data-link' as key in resources.homepage
 const LINKS = [
     {
         type: 'a',
         text: "resume",
-        'data-link': {
-            type: "href",
-            value: 'resume'
-        },
+        'data-link': { type: "href", value: 'resume' },
         target: ':blank',
-        icon: "far fa-file-alt",
+        icon: "far fa-file-alt",  // TODO theme ?
         "data-testid": 'link1',
     },
     {
         type: Link,
-        'data-link': {
-            type: "to",
-            value: 'contact'
-        },
+        'data-link': { type: "to", value: 'contact' },
         text: "contact",
-        icon: "fa fa-at",
+        icon: "fa fa-at",  // TODO theme ?
     },
     {
         type: 'a',
         text: "profile",
-        'data-link': {
-            type: "href",
-            value: 'linkedin'
-        },
+        'data-link': { type: "href", value: 'linkedin' },
         target: ':blank',
-        icon: "fab fa-linkedin",
+        icon: "fab fa-linkedin",  // TODO theme ?
     },
     {
         type: 'a',
         text: "github",
-        'data-link': {
-            type: "href",
-            value: 'github'
-        },
+        'data-link': { type: "href", value: 'github' },
         target: ':blank',
-        icon: "fab fa-github",
+        icon: "fab fa-github",  // TODO theme ?
     },
     {
         type: Link,
         text: "blog",
-        'data-link': {
-            type: "to",
-            value: 'blog'
-        },
-        icon: "far fa-newspaper",
+        'data-link': { type: "to", value: 'blog' },
+        icon: "far fa-newspaper",  // TODO theme ?
     },
     {
         type: Link,
         text: "projects",
-        'data-link': {
-            type: "to",
-            value: 'projects'
-        },
-        icon: "fas fa-cubes",
+        'data-link': { type: "to", value: 'projects' },
+        icon: "fas fa-cubes",  // TODO theme ?
     },
 ];
-
-// TODO organize project better
-// parameters for the animation
-const ANIMATION = {
-    stiffness:  210,
-    damping:    20,
-    length:     LINKS.length,
-};
 
 
 /* ---------------------------------------------------------------------
@@ -148,8 +108,7 @@ class _Background extends Component {
     //
     render() {
         // render components wrapped into a main div
-        // TODO organize project better
-        const layer1 = ASSETS.backgroundLayer1;
+        const layer1 = res.homepage.backgroundLayer1;
         const p = this.props.progress[0];
         // img increase opacity and size (spread effect)
         const layer1Style = {
@@ -277,7 +236,7 @@ class _PresentationText extends Component {
 
 
 const PresentationText = styled(DownloadText(_PresentationText,
-                                             ASSETS.presentationText))`
+                                             res.homepage.presentationText))`
     margin-top: 10px;
     padding: 0px;
     z-index: 0;
@@ -295,7 +254,7 @@ const PresentationText = styled(DownloadText(_PresentationText,
         overflow-y: scroll;
         margin: 7px;
         margin-bottom: ${SpringLinksConstants.large.main_button_diam / 2}px;
-        @media (max-width: ${SMALL}px) {
+        @media (max-width: ${config.media.small}px) {
             margin-bottom: ${SpringLinksConstants.small.main_button_diam / 2}px;
         }
     }
@@ -307,7 +266,7 @@ const PresentationText = styled(DownloadText(_PresentationText,
         font-size: 18px;
         text-align: justify;
 
-        @media (max-width: ${SMALL}px) {
+        @media (max-width: ${config.media.small}px) {
             font-size: 14px;
         }
     }
@@ -365,7 +324,7 @@ class _ZenOfTheDayText extends Component {
 
 
 const ZenOfTheDayText = styled(DownloadText(_ZenOfTheDayText,
-                                            ASSETS.zenOfTheDayText))`
+                                            res.homepage.zenOfTheDayText))`
     margin-bottom: 10px;
     padding: 0px;
     z-index: 0;
@@ -386,7 +345,7 @@ const ZenOfTheDayText = styled(DownloadText(_ZenOfTheDayText,
         overflow-y: scroll;
         margin: 7px;
         margin-top: ${SpringLinksConstants.large.main_button_diam / 2}px;
-        @media (max-width: ${SMALL}px) {
+        @media (max-width: ${config.media.small}px) {
             margin-top: ${SpringLinksConstants.small.main_button_diam / 2}px;
         }
     }
@@ -399,7 +358,7 @@ const ZenOfTheDayText = styled(DownloadText(_ZenOfTheDayText,
         font-weight: normal;
         text-align: center;
 
-        @media (max-width: ${SMALL}px) {
+        @media (max-width: ${config.media.small}px) {
             font-size: 14px;
         }
     }
@@ -412,7 +371,7 @@ const ZenOfTheDayText = styled(DownloadText(_ZenOfTheDayText,
         font-size: 18px;
         text-align: center;
 
-        @media (max-width: ${SMALL}px) {
+        @media (max-width: ${config.media.small}px) {
             font-size: 14px;
         }
     }
@@ -482,7 +441,7 @@ class _HomePage extends Component {
                 _link[data.type] = "missing link";
                 const Http = new XMLHttpRequest();
                 // TODO organize project better
-                Http.open("GET", ASSETS[data.value]);
+                Http.open("GET", res.homepage[data.value]);
 
                 Http.onload = () => {
                     const current = this.state.links
@@ -531,8 +490,10 @@ class _HomePage extends Component {
     render() {
         // prepare props for SpringSequence
         const state = this.props.store.get('homepage');
+
         const props = {
-            ...ANIMATION,
+            ...config.homepage.animation,
+            length: LINKS.length,
             currentState: state.active || false,
             className: this.props.className
         };

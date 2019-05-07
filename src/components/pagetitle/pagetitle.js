@@ -13,10 +13,11 @@ import './pagetitle.css';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
+import config from 'config';
+
 
 // TODO organize project better
-const TITLE = "Loïc's yard";
-const ICON = "fas fa-tree";  
+const ICON = "fas fa-tree";  // TODO theme ?
 
 
 /* ---------------------------------------------------------------------
@@ -25,7 +26,6 @@ const ICON = "fas fa-tree";
 const COLOR = theme('mode', {
     default: props => props.theme.primary,
 });
-
 
 
 /* ---------------------------------------------------------------------
@@ -49,7 +49,7 @@ class _PageTitle extends Component {
 
 
 _PageTitle.defaultProps = {
-    text: TITLE,
+    text: config.pagetitle.title,
     icon: ICON,
 };
 

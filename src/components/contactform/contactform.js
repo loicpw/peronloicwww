@@ -14,40 +14,26 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
 import { withStore } from '@spyna/react-store';
+import config from 'config';
+const API = config.email;
 
-// TODO organize project better
-export const SMALL = 479;  // media query switch
-
-// TODO organize project better                                                 
-export const EMAIL_API = {
-    post_message_url: '//api.emailjs.com/api/v1.0/email/send',
-    post_message_scheme: 'https',
-    service_id: 'gmail',
-    user_id: 'user_NvRb6WTMzkuKTVbA2i3mC',
-    template_id: 'template_QsTDa6iv_clone',
-    template: ({name, email, message}) => ({
-        from_name: name,
-        reply_to: email,
-        message_html: message,
-    }),
-}
 
 // using emailjs service
 // see also: https://www.emailjs.com/docs/rest-api/send/
 // params: {name, email, message}
 // params: callback: callback(request) function when request is complete 
-export const postEmail = (data, callback) => {
-    const url = EMAIL_API.post_message_scheme + ':' + EMAIL_API.post_message_url;
+const postEmail = (data, callback) => {
+    const url = API.post_message_scheme + ':' + API.post_message_url;
     const http = new XMLHttpRequest();
     http.open("POST", url);
     http.setRequestHeader("Content-Type", "application/json");
 
     // create expected payload
     const messageData = {
-        service_id: EMAIL_API.service_id,
-        template_id: EMAIL_API.template_id,
-        user_id: EMAIL_API.user_id,
-        template_params: EMAIL_API.template(data),
+        service_id: API.service_id,
+        template_id: API.template_id,
+        user_id: API.user_id,
+        template_params: API.template(data),
     };
 
     // inform user if message failed to send
@@ -329,7 +315,7 @@ const ContactForm = styled(_ContactForm)`
     grid-template-rows: auto auto 1fr auto;
     grid-gap: 10px;
 
-    @media (max-width: ${SMALL}px) {
+    @media (max-width: ${config.media.small}px) {
         margin: 0px;
         width: 90vw;
         grid-gap: 4px;

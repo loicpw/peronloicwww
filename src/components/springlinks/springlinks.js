@@ -16,13 +16,13 @@ import theme from 'styled-theming';
 import MediaQuery from 'react-responsive';
 import { withStore } from '@spyna/react-store';
 import ReactResizeDetector from 'react-resize-detector';
+import config from 'config';
 
 
 /* ---------------------------------------------------------------------
  — constants —
 ----------------------------------------------------------------------*/
 // TODO organize project better
-export const SMALL = 479;  // media query switch
 //export const MAIN_CLOSED_ICON = 'fa fa-moon'
 export const MAIN_CLOSED_ICON = 'fas fa-cog'
 //export const MAIN_CLOSED_ICON = 'fas fa-power-off'
@@ -408,10 +408,10 @@ class _SpringLinks extends Component {
 
                 return (
                     <div className={this.props.className} ref={this._div} >
-                      <MediaQuery maxWidth={SMALL}>
+                      <MediaQuery maxWidth={config.media.small}>
                         {this.content("small", width, height)}
                       </MediaQuery>
-                      <MediaQuery minWidth={SMALL + 1}>
+                      <MediaQuery minWidth={config.media.small + 1}>
                         {this.content("large", width, height)}
                       </MediaQuery>
                     </div>

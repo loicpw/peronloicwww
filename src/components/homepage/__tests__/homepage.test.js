@@ -11,6 +11,7 @@ import rewiremock from 'rewiremock';
 import {spring} from "react-motion";
 import HttpMock from 'xhr-mock';
 import {createApp, flushPromises} from 'tests/utils'
+import config from 'config';
 // TODO see link below:
 import { dependencies } from 'components/springsequence';
 
@@ -19,7 +20,7 @@ describe('homepage component', () => {
     let StaggeredMotion;
     //let SpringSequence; TODO see link below 
     let mockRaf;
-    const staticURL = '/loicpw.com/static';
+    const staticURL = config.API.path.static;
     const imagesURL = new RegExp(staticURL + '/images/.*');
     const dataURL = new RegExp(staticURL + '/data/.*');
     const textURL = new RegExp(staticURL + '/text/[^z].*');

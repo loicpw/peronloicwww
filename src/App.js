@@ -111,7 +111,7 @@ class App extends Component {
  will do the job for now
 ----------------------------------------------------------------------*/
 const initialState = {
-    theme: 'default',
+    theme: 'default',  // mode to use with the theme
 }
 
 

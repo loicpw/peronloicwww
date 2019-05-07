@@ -13,10 +13,7 @@ import './header.css';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
-
-// TODO organize project better
-const STATIC = "https://loicpw.com/static";
-const getAPI = (path) => STATIC + '/' + path;
+import res from 'resources';
 
 
 /* ---------------------------------------------------------------------
@@ -75,7 +72,7 @@ const FixedHeader = styled(_FixedHeader)`
     width: calc(100% - 20px);  /* - 2 * padding */
     height: auto;
     /*background-color: #ffffff;*/
-    background-image: url(${getAPI('images/header.jpg')});
+    background-image: url(${res.header.img});
     background-position: center;
     background-size: cover;
     display: flex;
