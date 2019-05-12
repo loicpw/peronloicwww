@@ -13,7 +13,6 @@ import './springlinks.css';
 import PropTypes from 'prop-types';
 import styled, { withTheme } from 'styled-components';
 import theme from 'styled-theming';
-import MediaQuery from 'react-responsive';
 import { withStore } from '@spyna/react-store';
 import ReactResizeDetector from 'react-resize-detector';
 import config from 'config';
@@ -398,22 +397,20 @@ class _SpringLinks extends Component {
             <ReactResizeDetector handleWidth handleHeight>
               {({ width, height }) => {
 
+                // 'small', 'large'...
+                const store = this.props.store;
+                const viewport = store.get('viewport');
+
                 // test environment ?
                 // TODO : https://github.com/maslianok/react-resize-detector/issues/67
                 if (typeof width == "undefined" ) {
-                    const defaultValues = MediaQuery.defaultProps.values;
-                    width = defaultValues.width;
-                    height = defaultValues.height;
+                    width = config.media[viewport];
+                    height = width;
                 }
 
                 return (
                     <div className={this.props.className} ref={this._div} >
-                      <MediaQuery maxWidth={config.media.small}>
-                        {this.content("small", width, height)}
-                      </MediaQuery>
-                      <MediaQuery minWidth={config.media.small + 1}>
-                        {this.content("large", width, height)}
-                      </MediaQuery>
+                      {this.content(viewport, width, height)}
                     </div>
                 );
               }}

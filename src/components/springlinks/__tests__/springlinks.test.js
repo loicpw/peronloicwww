@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import SpringLinks from 'components/springlinks';
 import { createStore } from '@spyna/react-store';
 import { render, fireEvent, cleanup } from 'react-testing-library'
-import MediaQuery from 'react-responsive';
 const sinon = require('sinon');
 import {createApp, flushPromises} from 'tests/utils'
 
@@ -16,6 +15,7 @@ const CONSTANTS = {
             link2: 399,
         },
     },
+    // NOTE: bigger margins when large...
     'large': {
         CHILD_START_POS: 360,
         CHILD_END_POS: {
@@ -42,7 +42,6 @@ describe('SpringLinks component', () => {
 
     afterEach(() => {
         clock.restore();
-        MediaQuery.defaultProps = {};
         cleanup();
     });
 
@@ -282,7 +281,7 @@ describe('SpringLinks component', () => {
 
     // test animation opening (progress 0% to 100%)
     const openAnimationCase = (media) => {
-        const App = createApp({});
+        const App = createApp({viewport: media});
         const {getByTestId, getByRole, container} = render(
             <App><MockAnimation />)</App>
         );
@@ -315,29 +314,15 @@ describe('SpringLinks component', () => {
     };
 
     it('should run the animation when the main button is clicked #large', () => {
-        // enforce viewport size otherwise MediaQuery won't render
-        MediaQuery.defaultProps = {
-            values: { width: 800, height: 800 },
-        };
-
         openAnimationCase('large');
     });
 
     it('should run the animation when the main button is clicked #small', () => {
-        // enforce viewport size otherwise MediaQuery won't render
-        MediaQuery.defaultProps = {
-            values: { width: 479, height: 479 },
-        };
-
         openAnimationCase('small');
     });
 
     it('should rollback the animation when the main button is clicked when opened', () => {
-        // enforce viewport size otherwise MediaQuery won't render
-        MediaQuery.defaultProps = {
-            values: { width: 800, height: 800 },
-        };
-        const App = createApp({});
+        const App = createApp({viewport: 'large'});
         const {getByTestId, getByRole, container} = render(
             <App><MockAnimation />)</App>
         );
@@ -373,11 +358,7 @@ describe('SpringLinks component', () => {
     });
 
     it('should rollback the animation when the main button is clicked while opening', () => {
-        // enforce viewport size otherwise MediaQuery won't render
-        MediaQuery.defaultProps = {
-            values: { width: 800, height: 800 },
-        };
-        const App = createApp({});
+        const App = createApp({viewport: 'large'});
         const {getByTestId, getByRole, container} = render(
             <App><MockAnimation />)</App>
         );

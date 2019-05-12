@@ -1,4 +1,4 @@
-const theme = {
+const base = {
     // TODO: colors
     primary: '#154360',
     secondary: '#fbfcfc',
@@ -6,12 +6,18 @@ const theme = {
     success: '#00bb00',
 
     // TODO: fonts
+};
 
-    // media 
-    media: {
-        small: 479,  // px
-        large: 480,  // px
-    },
+const small = {
+    ...base,
+};
+
+const large = {
+    ...base,
+};
+
+const theme = {
+    small, large
 };
 
 export default theme;

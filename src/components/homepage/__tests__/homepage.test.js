@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import HomePage from 'components/homepage';
 import { createStore } from '@spyna/react-store';
 const sinon = require('sinon');
-import MediaQuery from 'react-responsive';
 import { render, fireEvent, cleanup, getByTestId, getByText } from 'react-testing-library';
 import { BrowserRouter as Router } from 'react-router-dom';
 const createMockRaf = require('mock-raf');
@@ -59,11 +58,6 @@ describe('homepage component', () => {
         //}).default;
         dependencies.StaggeredMotion = StaggeredMotion;
 
-        // enforce viewport size otherwise MediaQuery won't render
-        MediaQuery.defaultProps = {
-            values: { width: 800, height: 800 },
-        };
-
         // mock HTTP requests
         HttpMock.setup();
         HttpMock.get(
@@ -93,7 +87,6 @@ describe('homepage component', () => {
     })
 
     afterEach(() => {
-        MediaQuery.defaultProps = {};
         HttpMock.teardown();
         cleanup();
     });

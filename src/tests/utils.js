@@ -3,6 +3,17 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { createStore, withStore } from '@spyna/react-store';
 import styled, { ThemeProvider } from 'styled-components';
+import theme from 'themes/default';
+import { AppContent } from 'App';
+import config from 'config';
+
+
+// resize the window and dispatch 'resize'
+export const resizeWindow = (w, h) => {
+  window.innerWidth = w;
+  window.innerHeight = h;
+  window.dispatchEvent(new Event('resize'));
+}
 
 
 // mock alert
@@ -28,32 +39,12 @@ export const flushPromises = () => {
 };
 
 
+// TODO organize project better
+// TODO theme.large
 // create App with:
 // + Router
 // + store (@spyna/react-store)
 // + theme (styled-components)
-const theme = {
-    mode: 'default',
-    primary: '#154360',
-    secondary: '#fbfcfc',
-};
-
-const _AppContent = (props) => {
-    return (
-        <ThemeProvider theme={theme}>
-          <div className={props.className}>
-            {props.children}
-          </div>
-        </ThemeProvider>
-    );
-}
-
-const AppContent = styled(_AppContent)`
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-`;
-
 const App = (props) => {
     return (
         <Router>
@@ -67,6 +58,7 @@ const App = (props) => {
 export const createApp = (initialState) => {
     return createStore(App, {
         theme: 'default',
+        viewport: config.media.default,
         ...initialState,
     });
 }

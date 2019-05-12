@@ -19,7 +19,11 @@ const API = API_SCHEME + "://" + API_ROOT;
 const common = {
     // media viewport
     media: {
+        // NOTE: max-width values, last one (largest) does not matter
+        //       (this value can be used as a default value if needed)
         small: 479,  // px
+        large: 800,  // px
+        default: 'large',
     },
 
     // email api (contact)
