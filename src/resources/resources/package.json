@@ -1,0 +1,7 @@
+{
+    "main": "resources.js",
+    "author": "Loïc Peron <peronloic.us@gmail.com> (https://github.com/loicpw)",
+    "version": "1.0.0",
+    "name": "Resources",
+    "description": "global mapping for accessing various resources"
+}
