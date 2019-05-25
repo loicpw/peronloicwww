@@ -1,5 +1,7 @@
 import res from './res';
-import { Resources, Resource } from './resources';
+import { Resources, oneTimeLoader, httpOneTimeLoader, Resource } from './resources';
 
 // TODO tmp
 export default res;
+
+export { Resources, oneTimeLoader, httpOneTimeLoader, Resource };

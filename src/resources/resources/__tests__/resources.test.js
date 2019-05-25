@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Resources, oneTimeLoader, Resource } from 'resources/resources';
+import { Resources, oneTimeLoader, httpOneTimeLoader, Resource } from 'resources';
+import HttpMock from 'xhr-mock';
 
 
 describe('test Resource', () => {
@@ -83,11 +84,93 @@ describe('test oneTimeLoader', () => {
 });
 
 
+describe('test httpOneTimeLoader', () => {
+    beforeEach(() => {
+        // mock HTTP requests
+        HttpMock.setup();
+    });
+
+    afterEach(() => {
+        HttpMock.teardown();
+    });
+
+    it('should load the value one time from HTTP', (done) => {
+        const r = new Resource('placeholder');
+        r.loader = httpOneTimeLoader('https://example.com/test.txt');
+
+        // setup mock request
+        const fn = jest.fn();
+        HttpMock.get(
+            'https://example.com/test.txt', (req, res) => {
+                fn();
+                return res.status(201)
+                    .headers({ 'Content-Type': 'text/plain' })
+                    .body('LOADED');
+            }
+        );
+
+        r.load().then((result) => {
+            expect(result).toEqual('LOADED');
+        }).then(() => {
+            r.load().then((result) => {
+                expect(result).toEqual('LOADED');
+                expect(fn).toHaveBeenCalledTimes(1);
+                done();
+            });
+        });
+    });
+});
+
+
 describe('test Resources', () => {
     it('should create Resource object when accessed if not exist', () => {
         const res = new Resources();
         const res1 = res.get('res1');
         expect(res1).toBeInstanceOf(Resource);
         expect(res.get('res1')).toStrictEqual(res1);
+    });
+
+    it('should create Resources when initialized with a mapping', () => {
+        const res = new Resources({
+            res1: {
+                value: 'res1Value',
+                loader: 'res1Loader',
+            },
+            res2: {
+                value: 'res2Value',
+                loader: 'res2Loader',
+            },
+        });
+        const res1 = res.get('res1');
+        expect(res1.value).toEqual('res1Value');
+        expect(res1.loader).toEqual('res1Loader');
+        const res2 = res.get('res2');
+        expect(res2.value).toEqual('res2Value');
+        expect(res2.loader).toEqual('res2Loader');
+    });
+
+    it('should only use defined properties when initialized with a mapping', () => {
+        const res = new Resources({
+            res1: {
+                value: 'res1Value',
+            },
+            res2: {
+            },
+        });
+        const res1 = res.get('res1');
+        expect(res1.value).toEqual('res1Value');
+        expect(res1.loader).toBeUndefined();
+        const res2 = res.get('res2');
+        expect(res2.value).toBeUndefined();
+        expect(res2.loader).toBeUndefined();
+    });
+
+    it('should use a string as value property when initialized with a mapping', () => {
+        const res = new Resources({
+            res1: 'res1Value',
+        });
+        const res1 = res.get('res1');
+        expect(res1.value).toEqual('res1Value');
+        expect(res1.loader).toBeUndefined();
     });
 });

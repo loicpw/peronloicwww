@@ -11,26 +11,26 @@
 import config from 'config';
 
 // full url for a given resource in static assets
-const _s = config.API.getStaticURL;
+const url = config.API.getStaticURL;
 
 // common values
 const common = {
     // resources
     header: {
-        img:                _s('images/header.jpg'),
+        img:                url('images/header.jpg'),
     },
 
     // homepage
     homepage: {
-        backgroundLayer1:   _s('images/lightray.png'),
-        presentationText:   _s('text/introduction.txt'),
-        zenOfTheDayText:    _s('text/zen.txt'),
-        resume:             _s('data/resume'),
-        linkedin:           _s('data/linkedin'),
-        github:             _s('data/github'),
-        blog:               _s('data/blog'),
-        projects:           _s('data/projects'),
-        contact:            _s('data/contact'),
+        backgroundLayer1:   url('images/lightray.png'),
+        presentationText:   url('text/introduction.txt'),
+        zenOfTheDayText:    url('text/zen.txt'),
+        resume:             url('data/resume'),
+        linkedin:           url('data/linkedin'),
+        github:             url('data/github'),
+        blog:               url('data/blog'),
+        projects:           url('data/projects'),
+        contact:            url('data/contact'),
     },
 };
 

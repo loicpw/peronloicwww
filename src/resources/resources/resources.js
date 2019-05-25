@@ -136,6 +136,42 @@ export const oneTimeLoader = (loader) => {
 
 
 /**
+ * httpOneTimeLoader
+ *  
+ * This is intended to be used to set "loader" attribute on "Resource":
+ *
+ * load a resource using a XMLHttpRequest object, the request will be
+ * performed only one time. See also oneTimeLoader.
+ *
+ * The value will be the XMLHttpRequest.response property, whose type
+ * depends on the body type (text, object...)
+ *
+ * @todo the value will never be loaded if the request fails.
+ *
+ * @example
+ * const r = new Resource('placeholder');
+ * r.loader = httpOneTimeLoader('https://example.com/test.txt');
+ * 
+ * @param {string}    request  the HTTP request to get the resource.
+ */
+export const httpOneTimeLoader = (request) => {
+    // the request will be performed only one time
+    return oneTimeLoader(() => {
+        return new Promise((resolve, reject) => {
+            // make request, resolve when complete
+            const Http = new XMLHttpRequest();
+            Http.open("GET", request);
+            Http.onload = () => {
+                // TODO: will never resolve if error => use reject
+                resolve(Http.response);
+            };
+            Http.send();
+        });
+    });
+}; 
+
+
+/**
  * Resources
  *  
  * provides a global mapping to getting resources, such as urls,
@@ -151,14 +187,56 @@ export const oneTimeLoader = (loader) => {
  * gives the resource's value - which knows how to get the value -).
  *
  * @example
- * 
+ * r = Resources();
+ * res1 = r.get('res1');  // create and return the Resource object
+ * res1.value = 'res1Value';
+ * res1.loader = res1Loader;  // see also Resource
+ *
+ * @example
+ * r = Resources({
+ *      res1: {
+ *          value: 'res1Value',
+ *          loader: res1Loader
+ *      },
+ *      res2: {
+ *          value: 'res2Value'
+ *      },
+ *      res3: 'res3Value',
+ *      res4: {},
+ * })
  */
 export class Resources {
     /**
      * @constructs Resources
+     *
+     * If a mapping is provided, then the specified resources
+     * will be initialized with the provided properties.
+     * Resources are specified either by a string, in which case the
+     * string will be used to initialize the 'value' property, or by
+     * an object, in which case the 'value' and 'loader' properties
+     * will be used if present (otherwise undefined).
+     *
+     * @param {object}  mapping initialize the specified resources
      */
-    constructor() {
+    constructor(mapping) {
         this._mapping = {};
+        if (typeof(mapping) == 'undefined')
+            return;
+
+        // initialize the provided resources
+        for (let key in mapping) {
+            const res = this.get(key);
+            const obj = mapping[key];
+            if (typeof(obj) == 'string') {
+                // use provided string as resource's value
+                res.value = obj;
+            } else {
+                // assumes javascript object
+                // uses relevant properties, undefined by default
+                res.value = obj.value;
+                res.loader = obj.loader;
+            }
+        }
     }
 
     /**
