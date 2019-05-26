@@ -7,6 +7,7 @@
  * @exports Resources (default)
  * @exports Resource
  */
+import React, { Component } from 'react';
 
 
 /**
@@ -244,6 +245,7 @@ export class Resources {
      * creating it if doesn't exist.
      *
      * @param {string}  key the unique key identifying the resource 
+     * @returns Resource object
      */
     get(key) {
         if (key in this._mapping)
@@ -253,4 +255,98 @@ export class Resources {
         this._mapping[key] = res;
         return res;
     }
+
+    /**
+     * get the value of the Resource object associated to a specific
+     * key, creating it if needed.
+     * Convenience method, equivalen to 'get(key).value'
+     *
+     * @param {string}  key the unique key identifying the resource 
+     * @returns Resource.value property
+     */
+    getValue(key) {
+        return this.get(key).value;
+    }
+
+    /**
+     * load the Resource object associated to a specific key, creating
+     * it if needed. Returns the Promise.
+     * Convenience method, equivalen to 'get(key).load()'
+     *
+     * @param {string}  key the unique key identifying the resource 
+     * @returns the Promise returned by Resource.load
+     */
+    load(key) {
+        return this.get(key).load();
+    }
 }
+
+
+/**
+ * withResources
+ *  
+ * HOC that automatically loads specified resources from a Resources
+ * object and provide them in as props to the Wrapped component.
+ *
+ * The resources to load are specified through a javascript object,
+ * which contains a mapping of 'props_key': 'resource_key' where
+ * 'props_key' is the property that will be used to provide the value 
+ * to the wrapped component (the component will use 'props.<props_key>')
+ * and 'resource_key' is the key to use for retrieving the resource in
+ * the Resource object.
+ *
+ * @example
+ * const source = new Resources({ res1, res2 });
+ * const resources =  { r1: 'res1', r2: 'res2' };
+ * const _MyComp = (props) => {
+ *    <div>
+ *      <label>{props.r1}</label>
+ *      <label>{props.r2}</label>
+ *    </div>
+ * };
+ * const MyComp = withResources(_MyComp, resources, (props) => source);
+ * 
+ * @param {Component}    WrappedComponent  the component to wrap
+ * @param {object}    resources  the resources to load (props_key: resource_key)
+ * @param {function}    source  (props) => Resources object
+ */
+export const withResources = (WrappedComponent, resources, source) => {
+    return class extends Component {
+        /**
+         * The resources are loaded into the constructor. Note the
+         * resources are loaded asynchronously, so the value may not
+         * be loaded when the component is rendered.
+         *
+         * For each resource, once the value is loaded a forceUpdate
+         * will be performed on the component to ensure it renders.
+         * 
+         * @todo is forceUpdate the best way to do this
+         */
+        constructor(props) {
+            super(props);
+            const res = source(props);
+            const render = this.forceUpdate.bind(this);
+            for (let key in resources)
+                res.load(resources[key]).then(() => render());
+        }
+
+        /**
+         * render the wrapped component, providing the values of the
+         * specified resources as props. The values will be overriden
+         * by any property specifically given to the component with the
+         * same key as a specified resource (through 'resources' param).
+         */
+        render() {
+            const res = source(this.props);
+            const values = {};
+            for (let key in resources)
+                values[key] = res.getValue(resources[key]);
+            // be able to override values with props
+            const props = {
+                ...values,
+                ...this.props
+            };
+            return <WrappedComponent {...props} />;
+        }
+    };
+};

@@ -12,6 +12,8 @@ import ContactPage from 'components/contactpage';
 import config from 'config';
 // theme
 import theme from 'themes/default';
+// resources mapping
+import { future } from 'resources';
 
 
 /* ---------------------------------------------------------------------
@@ -205,6 +207,7 @@ class App extends Component {
 const initialState = {
     theme: 'default',  // mode to use with the theme
     viewport: config.media.default,  // "small", "large"...
+    resources: future,  // resources mapping => TODO tmp ("future")
 }
 
 

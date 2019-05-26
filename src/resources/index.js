@@ -1,7 +1,15 @@
-import res from './res';
-import { Resources, oneTimeLoader, httpOneTimeLoader, Resource } from './resources';
+import res, { future } from './res';  // tmp
+import { Resources, oneTimeLoader, httpOneTimeLoader, Resource, withResources } from './resources';
 
 // TODO tmp
 export default res;
 
-export { Resources, oneTimeLoader, httpOneTimeLoader, Resource };
+// TODO future (tmp)
+export { 
+    Resources,
+    oneTimeLoader,
+    httpOneTimeLoader,
+    Resource,
+    withResources,
+    future,
+};

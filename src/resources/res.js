@@ -9,6 +9,7 @@
  * const headerImg = res.header.img;
  */
 import config from 'config';
+import { Resources, httpOneTimeLoader } from './resources';
 
 // full url for a given resource in static assets
 const url = config.API.getStaticURL;
@@ -50,3 +51,33 @@ export default {
     ...common,
     ...res
 };
+
+
+// TODO replace default export
+const future = {
+    // header mapping
+    header: new Resources({
+        img: url('images/header.jpg'),
+    }),
+
+    // homepage mapping
+    homepage: new Resources({
+        backgroundLayer1: url('images/lightray.png'),
+        presentationText: {
+            value: 'presentation text loading...',
+            loader: httpOneTimeLoader(url('text/introduction.txt')),
+        },
+        zenOfTheDayText: {
+            value: 'text loading...',
+            loader: httpOneTimeLoader(url('text/zen.txt')),
+        },
+        //resume:             url('data/resume'),
+        //linkedin:           url('data/linkedin'),
+        //github:             url('data/github'),
+        //blog:               url('data/blog'),
+        //projects:           url('data/projects'),
+        //contact:            url('data/contact'),
+    }),
+};
+
+export { future };

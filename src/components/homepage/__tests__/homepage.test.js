@@ -13,17 +13,23 @@ import {createApp, flushPromises} from 'tests/utils'
 import config from 'config';
 // TODO see link below:
 import { dependencies } from 'components/springsequence';
+import { Resources } from 'resources';
 
 
 describe('homepage component', () => {
     let StaggeredMotion;
     //let SpringSequence; TODO see link below 
     let mockRaf;
+
+
+    // TODO XXX
     const staticURL = config.API.path.static;
     const imagesURL = new RegExp(staticURL + '/images/.*');
     const dataURL = new RegExp(staticURL + '/data/.*');
-    const textURL = new RegExp(staticURL + '/text/[^z].*');
-    const zenListURL = new RegExp(staticURL + '/text/zen.txt');
+    //const textURL = new RegExp(staticURL + '/text/[^z].*');
+    //const zenListURL = new RegExp(staticURL + '/text/zen.txt');
+
+
     const mockData = `"Items": [
         {
           "resourceID": {
@@ -37,6 +43,20 @@ describe('homepage component', () => {
           }
         }
     ]`;
+
+    // mock resources
+    const resources = {
+        homepage: new Resources({
+            presentationText: 'presentation text',
+            zenOfTheDayText: '[ "zen of the day text" ]',
+            // TODO
+
+
+
+
+
+        }),
+    };
 
     beforeEach(() => {
         mockRaf = createMockRaf();
@@ -59,6 +79,7 @@ describe('homepage component', () => {
         dependencies.StaggeredMotion = StaggeredMotion;
 
         // mock HTTP requests
+        // TODO XXX
         HttpMock.setup();
         HttpMock.get(
             imagesURL, {
@@ -72,18 +93,18 @@ describe('homepage component', () => {
                 body: `{${mockData}}`,
             }
         );
-        HttpMock.get(
-            zenListURL, {
-                headers: { 'Content-Type': 'text/plain' },
-                body: '[ "THIS IS A TEST #0" ]',
-            }
-        );
-        HttpMock.get(
-            textURL, {
-                headers: { 'Content-Type': 'text/plain' },
-                body: "THIS IS A TEST",
-            }
-        );
+        //HttpMock.get(
+        //    zenListURL, {
+        //        headers: { 'Content-Type': 'text/plain' },
+        //        body: '[ "THIS IS A TEST #0" ]',
+        //    }
+        //);
+        //HttpMock.get(
+        //    textURL, {
+        //        headers: { 'Content-Type': 'text/plain' },
+        //        body: "THIS IS A TEST",
+        //    }
+        //);
     })
 
     afterEach(() => {
@@ -91,19 +112,40 @@ describe('homepage component', () => {
         cleanup();
     });
 
-    it('renders without crashing', async () => {
-        const App = createApp({});
+    // TODO resources integration 
+    it('should display the "zen of the day" text', async () => {
+        const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
 
         // check the 'ZenOfTheDay' text has been taken from the list
         // (only one element for the test)
         const zenOfTheDayText = getByTestId('ZenOfTheDayText');
-        getByText(zenOfTheDayText, /THIS IS A TEST #0/);
+        getByText(zenOfTheDayText, /zen of the day text/);
     });
 
+    it('should display the presentation text', () => {
+        const App = createApp({ resources });
+        const {getByText, container} = render(<App><HomePage /></App>);
+
+        getByText('presentation text');  // mock value (see above)
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     it('should run the animation when click on main button', async () => {
-        const App = createApp({});
+        const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');
@@ -147,7 +189,7 @@ describe('homepage component', () => {
     });
 
     it('should rollback the animation when click on main button again', async () => {
-        const App = createApp({});
+        const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');
@@ -177,7 +219,7 @@ describe('homepage component', () => {
     });
 
     it('should rollback the animation when click on main button while animation is running', async () => {
-        const App = createApp({});
+        const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
         await flushPromises();
         const main = getByTestId('main-button');

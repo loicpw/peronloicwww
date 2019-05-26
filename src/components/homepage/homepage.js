@@ -18,7 +18,8 @@ import SpingLinks, { CONSTANTS as SpringLinksConstants } from 'components/spring
 import { withStore } from '@spyna/react-store';
 import {Link} from 'react-router-dom'; 
 import config from 'config';
-import res from 'resources';
+import res from 'resources';  // TODO remove
+import { withResources as _withResources } from 'resources';
 
 // TODO organize project better
 const ZEN_ICON = "fas fa-seedling";
@@ -144,78 +145,37 @@ const Background = styled(_Background)`
 `;
 
 
-/* ---------------------------------------------------------------------
- — "DownloadText" —
- 
- HOC to display text on the home page, the component downloads the plain
- text content from the specified adress.
- A 'Missing text' placeholder is used until the content is downloaded.
-
- The content is passed as props to the wrapped component as 'text'
-
- parameters:
-
- + content: path of the content (plain text content)
-----------------------------------------------------------------------*/
-const DownloadText = (WrappedComponent, content) => {
-    return class extends Component {
-        _isMounted = false;  // prevent setState if unmounted (Http request)
-    
-        //
-        constructor(props) {
-            super(props);
-    
-            // get text from static assets repos using API
-            // update text asap, see componentDidMount
-            this.state = {
-                text: 'Missing text',
-            };
-        }
-    
-        // handle this in componentDidMount to be sure we dont change the
-        // state before the component is mounted (ex: automated tests)
-        componentDidMount() {
-            this._isMounted = true;
-    
-            // the text is stored in a text file, get plain text from API
-            const Http = new XMLHttpRequest();
-            // TODO organize project better
-            Http.open("GET", content);
-            Http.onload = () => {
-                if (this._isMounted) {
-                    this.setState({ text: Http.responseText });
-                }
-            };
-            Http.send();
-        }
-    
-        // prevent setState if unmounted (Http request)
-        componentWillUnmount() {
-            this._isMounted = false;
-        }
-    
-        // render the Wrapped component with 'text'
-        render() {
-            return <WrappedComponent text={this.state.text} {...this.props} />;
-        }
+/**
+ * withResources
+ *
+ * HOC decorating withResource from 'resources' module, in order to
+ * specifically use homepage Resources mapping, accessed from
+ * props.store. It then includes the withStore HOC which provides the
+ * with props.store.
+ */
+const withResources = (WrappedComponent, resources) => {
+    const source = (props) => {
+        resources = props.store.get('resources');
+        return resources.homepage;
     };
-}
+    return withStore(_withResources(WrappedComponent, resources, source));
+};
 
 
-/* ---------------------------------------------------------------------
- — "PresentationText" —
-
- .. seealso:: `DownloadText`
- 
- shows presentation text content from static assets on top of the page,
- the component is slided up and disappear when the animation run.
-
- the text content is downloaded from the API (text/introduction.txt)
-----------------------------------------------------------------------*/
+/**
+ * PresentationText
+ *
+ * shows presentation text content from static assets on top of the page,
+ * the component is slided up and disappear when the animation run.
+ *
+ * the text content is downloaded from the API.
+ */
 class _PresentationText extends Component {
-    // the text is centered between the top border and the main button
-    // when the button expands (animation) the text is slided up and
-    // eventually disappear
+    /**
+     * the text is centered between the top border and the main button
+     * when the button expands (animation) the text is slided up and
+     * eventually disappear
+     */
     render() {
         const progress = this.props.progress[0];
         const style = {
@@ -235,8 +195,8 @@ class _PresentationText extends Component {
 }
 
 
-const PresentationText = styled(DownloadText(_PresentationText,
-                                             res.homepage.presentationText))`
+const PresentationText = styled(withResources(
+        _PresentationText, { text: 'presentationText' }))`
     margin-top: 10px;
     padding: 0px;
     z-index: 0;
@@ -273,25 +233,25 @@ const PresentationText = styled(DownloadText(_PresentationText,
 `;
 
 
-/* ---------------------------------------------------------------------
- — "ZenOfTheDayText" —
- 
- .. seealso:: `DownloadText`
-
- randomly pick one of the zen quotes from static assets and display it
- on the bottom of the page.
-
- The component is slided down and disappear when the animation run.
-
- the quotes are downloaded from the static assets (API). The data is
- expected to be a json list in plain text.
-----------------------------------------------------------------------*/
+/**
+ * ZenOfTheDayText
+ *
+ * randomly picks one of the zen quotes from static assets and display
+ * it on the bottom of the page.
+ *
+ * The component is slided down and disappear when the animation run.
+ *
+ * the quotes are downloaded from the static assets (API). The data is
+ * expected to be a json list in plain text.
+ */
 class _ZenOfTheDayText extends Component {
     _random = Math.random();  // randomly choose a quote in the list
 
-    // the text is centered between the main button and the bottom
-    // when the button expands (animation) the text is slided down and
-    // eventually disappear
+    /**
+     * the text is centered between the main button and the bottom
+     * when the button expands (animation) the text is slided down and
+     * eventually disappear
+     */
     render() {
         const progress = this.props.progress[0];
         const style = {
@@ -323,8 +283,8 @@ class _ZenOfTheDayText extends Component {
 }
 
 
-const ZenOfTheDayText = styled(DownloadText(_ZenOfTheDayText,
-                                            res.homepage.zenOfTheDayText))`
+const ZenOfTheDayText = styled(withResources(
+        _ZenOfTheDayText, { text: 'zenOfTheDayText' }))`
     margin-bottom: 10px;
     padding: 0px;
     z-index: 0;
