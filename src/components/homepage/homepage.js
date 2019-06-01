@@ -18,62 +18,15 @@ import SpingLinks, { CONSTANTS as SpringLinksConstants } from 'components/spring
 import { withStore } from '@spyna/react-store';
 import {Link} from 'react-router-dom'; 
 import config from 'config';
-import res from 'resources';  // TODO remove
 import { withResources as _withResources } from 'resources';
 
 // TODO organize project better
 const ZEN_ICON = "fas fa-seedling";
 
-// TODO organize project better
-// the links values are downloaded using 'value' in
-// 'data-link' as key in resources.homepage
-const LINKS = [
-    {
-        type: 'a',
-        text: "resume",
-        'data-link': { type: "href", value: 'resume' },
-        target: ':blank',
-        icon: "far fa-file-alt",  // TODO theme ?
-        "data-testid": 'link1',
-    },
-    {
-        type: Link,
-        'data-link': { type: "to", value: 'contact' },
-        text: "contact",
-        icon: "fa fa-at",  // TODO theme ?
-    },
-    {
-        type: 'a',
-        text: "profile",
-        'data-link': { type: "href", value: 'linkedin' },
-        target: ':blank',
-        icon: "fab fa-linkedin",  // TODO theme ?
-    },
-    {
-        type: 'a',
-        text: "github",
-        'data-link': { type: "href", value: 'github' },
-        target: ':blank',
-        icon: "fab fa-github",  // TODO theme ?
-    },
-    {
-        type: Link,
-        text: "blog",
-        'data-link': { type: "to", value: 'blog' },
-        icon: "far fa-newspaper",  // TODO theme ?
-    },
-    {
-        type: Link,
-        text: "projects",
-        'data-link': { type: "to", value: 'projects' },
-        icon: "fas fa-cubes",  // TODO theme ?
-    },
-];
 
-
-/* ---------------------------------------------------------------------
- — theme —
-----------------------------------------------------------------------*/
+/**
+ * theme
+ */
 const BG_COLOR1 = theme('mode', {
     default: props => props.theme.primary + '60',  // alpha
 });
@@ -88,36 +41,55 @@ const SECONDARY_BACKGROUND = theme('mode', {
 });
 
 
-/* ---------------------------------------------------------------------
- — "Background" —
- 
- the home page's background, expecting to receive 'progress' props,
- which is an array containing progress values of the home page animation.
- `Background` will use the main (index 0) value. See `HomePage` for
- details.
+/**
+ * withResources
+ *
+ * HOC decorating withResource from 'resources' module, in order to
+ * specifically use homepage Resources mapping, accessed from
+ * props.store. It then includes the withStore HOC which provides the
+ * with props.store.
+ */
+const withResources = (WrappedComponent, resources) => {
+    const source = (props) => {
+        const resources = props.store.get('resources');
+        return resources.homepage;
+    };
+    return withStore(_withResources(WrappedComponent, resources, source));
+};
 
- The background change the aspect of the images according to the main
- animation's progress value, changing the opacity / size of the images.
 
- .. seealso:: `SpringSequence` forwards the "progress" property to all
-    its children components.
-
- renders a div containing one background image. The div has an "absolute"
- position so it's integrated in the home page div seamlessly.
-----------------------------------------------------------------------*/
+/**
+ * Background
+ * 
+ * the home page's background, expecting to receive 'progress' props,
+ * which is an array containing progress values of the home page
+ * animation. Background will use the main (index 0) value. See HomePage
+ * for details.
+ *
+ * The background change the aspect of the images according to the main
+ * animation's progress value, changing the opacity / size of the images.
+ *
+ * renders a div containing one background image. The div has an
+ * "absolute" position so it's integrated in the home page div seamlessly.
+ */
 class _Background extends Component {
-    //
+    /**
+     * render components wrapped into a main div
+     */
     render() {
-        // render components wrapped into a main div
-        const layer1 = res.homepage.backgroundLayer1;
+        // get the background image source from resources
+        const resources = this.props.store.get('resources');
+        const layer1 = resources.homepage.getValue('backgroundLayer1');
+
+        // the image increases opacity and size (spread effect)
+        // according to the progress value of the homepage's animation
         const p = this.props.progress[0];
-        // img increase opacity and size (spread effect)
         const layer1Style = {
             opacity: p / 5,
             width: `${p * 100}%`,
             height: `${p * 100}%`,
         }
-        // images are rendered centered on top of each other
+
         return (
             <div className={this.props.className} style={{opacity: p}}>
               <img src={layer1} style={layer1Style} />
@@ -127,7 +99,7 @@ class _Background extends Component {
 }
 
 
-const Background = styled(_Background)`
+const Background = styled(withStore(_Background))`
     position: absolute;
     margin: 0px;
     padding: 0px;
@@ -143,23 +115,6 @@ const Background = styled(_Background)`
         position: absolute;
     }
 `;
-
-
-/**
- * withResources
- *
- * HOC decorating withResource from 'resources' module, in order to
- * specifically use homepage Resources mapping, accessed from
- * props.store. It then includes the withStore HOC which provides the
- * with props.store.
- */
-const withResources = (WrappedComponent, resources) => {
-    const source = (props) => {
-        resources = props.store.get('resources');
-        return resources.homepage;
-    };
-    return withStore(_withResources(WrappedComponent, resources, source));
-};
 
 
 /**
@@ -338,38 +293,84 @@ const ZenOfTheDayText = styled(withResources(
 `;
 
 
-/* ---------------------------------------------------------------------
- — "HomePage" —
- 
- the home page's components are wrapped into an `SpringSequence`
- component in order to manage an "open / close" animation and
- synchronize different components in the page. The animation abstraction
- consists of an array of progress values (0 to 1), increasing or
- decreasing one after another, using react-motion.
+// TODO organize project better
+/**
+ * The link destination for the links displayed on the home page are
+ * downloaded from the static assets (API).
+ * We use Link components (react routing) for links to the same app...
+ */
+const aLink = (href) => withResources((props) => <a {...props} />, { href });
+const routerLink = (to) => withResources(Link, { to });
 
- .. seealso:: `SpringSequence` forwards the "progress" property to all
-    its children components.
 
- renders the wrapping `SpringSequence` component (renders a div).
-
- Layout ::
-    
-    + ---------------------------------- +
-    |    PresentationText  component     |
-    + ---------------------------------- +
-    |                                    |
-    |       SpringLinks component        |
-    |                                    |
-    + ---------------------------------- +
-    |     ZenOfTheDayText  component     |
-    + ---------------------------------- +
-
- .. seealso:: `SpringLinks` component
-----------------------------------------------------------------------*/
+/**
+ * HomePage
+ * 
+ * the home page's components are wrapped into an SpringSequence
+ * component in order to manage an "open / close" animation and
+ * synchronize different components in the page. The animation
+ * abstraction consists of an array of progress values (0 to 1),
+ * increasing or decreasing one after another, using react-motion.
+ *
+ * ( SpringSequence forwards the "progress" property to all its child
+ * components )
+ *
+ * renders the wrapping SpringSequence component (renders a div).
+ *
+ * Layout:
+ *    
+ * + ---------------------------------- +
+ * |    PresentationText  component     |
+ * + ---------------------------------- +
+ * |                                    |
+ * |       SpringLinks component        |
+ * |                                    |
+ * + ---------------------------------- +
+ * |     ZenOfTheDayText  component     |
+ * + ---------------------------------- +
+ */
 class _HomePage extends Component {
-    _isMounted = false;  // prevent setState if unmounted (Http request)
+    LINKS = [
+        {
+            type: aLink('resume'),
+            text: "resume",
+            target: ':blank',
+            icon: "far fa-file-alt",  // TODO theme ?
+            "data-testid": 'link1',
+        },
+        {
+            type: routerLink('contact'),
+            text: "contact",
+            icon: "fa fa-at",  // TODO theme ?
+        },
+        {
+            type: aLink('linkedin'),
+            text: "profile",
+            target: ':blank',
+            icon: "fab fa-linkedin",  // TODO theme ?
+        },
+        {
+            type: aLink('github'),
+            text: "github",
+            target: ':blank',
+            icon: "fab fa-github",  // TODO theme ?
+        },
+        {
+            type: routerLink('blog'),
+            text: "blog",
+            icon: "far fa-newspaper",  // TODO theme ?
+        },
+        {
+            type: routerLink('projects'),
+            text: "projects",
+            'data-link': { type: "to", value: 'projects' },
+            icon: "fas fa-cubes",  // TODO theme ?
+        },
+    ];
 
-    //
+    /**
+     * @constructs HomePage
+     */
     constructor(props) {
         super(props);
         this.toggleAnimation = this.toggleAnimation.bind(this);
@@ -377,83 +378,18 @@ class _HomePage extends Component {
         // is animation opened or closed
         const store = this.props.store
         store.set('homepage', {active: false});
-
-        // get link values from static assets repos using API
-        // update links asap
-        
-        // setupLink: process one item in 'LINKS':
-        // search for 'data-link' key in the object,
-        // 'data-link' should be as followings:
-        //
-        //   { 
-        //      type,  // type of link, ex: 'a' or Link (see SpringLinks)
-        //      value, // path of the link value
-        //   }
-        //
-        // then create a XMLHttpRequest to obtain the link value from
-        // the API. Once the value is obtained, the state of HomePage
-        // is updated.
-        // A "missing link" placeholder is set as link value until then.
-        const setupLink = (link, index) => {
-            const _link = {...link};
-            const data = _link['data-link'];
-            if (data) {
-                _link[data.type] = "missing link";
-                const Http = new XMLHttpRequest();
-                // TODO organize project better
-                Http.open("GET", res.homepage[data.value]);
-
-                Http.onload = () => {
-                    const current = this.state.links
-                    const update = {...current[index]};
-                    const resp = JSON.parse(Http.responseText);
-                    update[`${data.type}`] = resp.Items[0].link.S;
-                    if (this._isMounted) {
-                        this.setState({ 
-                            links: [
-                                ...current.slice(0,index),
-                                update,
-                                ...current.slice(index + 1),
-                            ]
-                        });
-                    }
-                };
-
-                _link['data-link'] = Http;
-            } 
-            return _link;
-        }
-
-        // init the state
-        this.state = { links: LINKS.map(setupLink) };
     }
 
-    // handle this in componentDidMount to be sure we dont change the
-    // state before the component is mounted (ex: automated tests)
-    componentDidMount() {
-        this._isMounted = true;
-
-        // get the XMLHttpRequest for each link and send it
-        this.state.links.forEach((link) => {
-            const http = link['data-link'];
-            if (http)
-                http.send();
-        });
-    }
-
-    // prevent setState if unmounted (Http request)
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
-
-    //
+    /**
+     * render HomePage
+     */
     render() {
         // prepare props for SpringSequence
         const state = this.props.store.get('homepage');
 
         const props = {
             ...config.homepage.animation,
-            length: LINKS.length,
+            length: this.LINKS.length,
             currentState: state.active || false,
             className: this.props.className
         };
@@ -464,12 +400,16 @@ class _HomePage extends Component {
               <PresentationText />
               <ZenOfTheDayText />
               <Background />
-              <SpingLinks toggleState={this.toggleAnimation} links={this.state.links} />
+              <SpingLinks toggleState={this.toggleAnimation} links={this.LINKS} />
             </SpringSequence>
         );
     }
 
-    // open / close animation toggling the homepage' state
+    /**
+     * toggleAnimation
+     * 
+     * open or close the global animation changing the homepage' state
+     */
     toggleAnimation() {
         const store = this.props.store;
         const state = store.get('homepage');

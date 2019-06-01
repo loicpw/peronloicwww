@@ -8,8 +8,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 const createMockRaf = require('mock-raf');
 import rewiremock from 'rewiremock';
 import {spring} from "react-motion";
-import HttpMock from 'xhr-mock';
-import {createApp, flushPromises} from 'tests/utils'
+import {createApp} from 'tests/utils'
 import config from 'config';
 // TODO see link below:
 import { dependencies } from 'components/springsequence';
@@ -21,40 +20,18 @@ describe('homepage component', () => {
     //let SpringSequence; TODO see link below 
     let mockRaf;
 
-
-    // TODO XXX
-    const staticURL = config.API.path.static;
-    const imagesURL = new RegExp(staticURL + '/images/.*');
-    const dataURL = new RegExp(staticURL + '/data/.*');
-    //const textURL = new RegExp(staticURL + '/text/[^z].*');
-    //const zenListURL = new RegExp(staticURL + '/text/zen.txt');
-
-
-    const mockData = `"Items": [
-        {
-          "resourceID": {
-            "S": "test"
-          },
-          "link": {
-            "S": "https://www.example.com/test"
-          },
-          "resourceType": {
-            "S": "homePageLink"
-          }
-        }
-    ]`;
-
     // mock resources
     const resources = {
         homepage: new Resources({
+            backgroundLayer1: 'https://www.example.com/test/image.png',
             presentationText: 'presentation text',
             zenOfTheDayText: '[ "zen of the day text" ]',
-            // TODO
-
-
-
-
-
+            resume: "https://www.example.com/test",
+            linkedin: "https://www.example.com/test",
+            github: "https://www.example.com/test",
+            blog: "https://www.example.com/test",
+            projects: "https://www.example.com/test",
+            contact: "https://www.example.com/test",
         }),
     };
 
@@ -77,46 +54,15 @@ describe('homepage component', () => {
         //    },
         //}).default;
         dependencies.StaggeredMotion = StaggeredMotion;
-
-        // mock HTTP requests
-        // TODO XXX
-        HttpMock.setup();
-        HttpMock.get(
-            imagesURL, {
-                headers: { 'Content-Type': 'application/json' },
-                body: "{}",
-            }
-        );
-        HttpMock.get(
-            dataURL, {
-                headers: { 'Content-Type': 'application/json' },
-                body: `{${mockData}}`,
-            }
-        );
-        //HttpMock.get(
-        //    zenListURL, {
-        //        headers: { 'Content-Type': 'text/plain' },
-        //        body: '[ "THIS IS A TEST #0" ]',
-        //    }
-        //);
-        //HttpMock.get(
-        //    textURL, {
-        //        headers: { 'Content-Type': 'text/plain' },
-        //        body: "THIS IS A TEST",
-        //    }
-        //);
     })
 
     afterEach(() => {
-        HttpMock.teardown();
         cleanup();
     });
 
-    // TODO resources integration 
-    it('should display the "zen of the day" text', async () => {
+    it('should display the "zen of the day" text', () => {
         const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
-        await flushPromises();
 
         // check the 'ZenOfTheDay' text has been taken from the list
         // (only one element for the test)
@@ -131,23 +77,17 @@ describe('homepage component', () => {
         getByText('presentation text');  // mock value (see above)
     });
 
+    it('links should go to "https://www.example.com/test"', () => {
+        const App = createApp({ resources });
+        const {getByTestId, container} = render(<App><HomePage /></App>);
 
-
-
-
-
-
-
-
-
-
-
-
+        const link1 = getByTestId('link1');
+        expect(link1.href).toEqual("https://www.example.com/test");
+    });
 
     it('should run the animation when click on main button', async () => {
         const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
-        await flushPromises();
         const main = getByTestId('main-button');
         const link1 = getByTestId('link1');
         const presentationText = getByTestId('PresentationText');
@@ -191,7 +131,6 @@ describe('homepage component', () => {
     it('should rollback the animation when click on main button again', async () => {
         const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
-        await flushPromises();
         const main = getByTestId('main-button');
         const link1 = getByTestId('link1');
         const presentationText = getByTestId('PresentationText');
@@ -221,7 +160,6 @@ describe('homepage component', () => {
     it('should rollback the animation when click on main button while animation is running', async () => {
         const App = createApp({ resources });
         const {getByTestId, container} = render(<App><HomePage /></App>);
-        await flushPromises();
         const main = getByTestId('main-button');
         const link1 = getByTestId('link1');
         const presentationText = getByTestId('PresentationText');

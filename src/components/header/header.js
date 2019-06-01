@@ -13,34 +13,33 @@ import './header.css';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import theme from 'styled-theming';
-import res from 'resources';
+import { withStore } from '@spyna/react-store';
 
 
-/* ---------------------------------------------------------------------
- — "FixedHeader" —
- 
- creates a wrapping div element to hold children components on top.
-
- `FixedHeader` has a fixed position on top of the viewport. It renders a
- fix banner that occupied the whole width and whose height depends on
- its children.
-
- It displays in flex / column mode.
-
- renders a "div" element.
-
- example ::
-
-    <body>
-        <header>
-            <FixedHeader>
-                <h1>my title</h1>
-                <p>this will stick on the top</p>
-            </FixedHeader>
-        </header>
-        <nav>...</nav>
-    </body>
---------------------------------------------------------------------- */
+/**
+ * FixedHeader
+ * 
+ * creates a wrapping div element to hold children components on top.
+ *
+ * FixedHeader has a fixed position on top of the viewport. It renders a
+ * fixed banner that occupied the whole width and whose height depends
+ * on its children.
+ *
+ * display mode is flex / column mode.
+ *
+ * @example
+ * <body>
+ *   <header>
+ *     <FixedHeader>
+ *       <h1>my title</h1>
+ *       <p>this will stick on the top</p>
+ *     </FixedHeader>
+ *   </header>
+ *   <nav>...</nav>
+ * </body>
+ *
+ * @param {Resources}   resources   the Resources object mapping resources.
+ */
 class _FixedHeader extends Component {
     constructor(props) {
         super(props)
@@ -71,8 +70,8 @@ const FixedHeader = styled(_FixedHeader)`
     padding-bottom: 7px;
     width: calc(100% - 20px);  /* - 2 * padding */
     height: auto;
+    background-image: url(${(props) => props.resources.getValue('img')});
     /*background-color: #ffffff;*/
-    background-image: url(${res.header.img});
     background-position: center;
     background-size: cover;
     display: flex;
@@ -128,9 +127,10 @@ class Header extends Component {
         // add a phantom div that matches the height of
         // the FixedHeader component, which  will act as a
         // margin for elements following the "header"
+        const resources = this.props.store.get('resources');
         return (
             <header className={this.props.className}>
-              <FixedHeader ref={this._content}>
+              <FixedHeader ref={this._content} resources={resources.header}>
                 {this.props.children}
               </FixedHeader>
               <div style={{height: `${this.state.height}px`, position: 'relative'}} />
@@ -140,4 +140,4 @@ class Header extends Component {
 }
 
 
-export default Header;
+export default withStore(Header);
