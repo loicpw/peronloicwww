@@ -65,7 +65,7 @@ describe('contactform component', () => {
         expect(utils.getByText(/cancel/i).disabled).not.toBe(enabled);
     };
 
-    it('should send the email when submit valid form', async () => {
+    it('should send the email when submit valid form', (done) => {
         const userData = {
             name: 'john',
             email: 'john@john.doe',
@@ -88,11 +88,13 @@ describe('contactform component', () => {
         const App = createApp({});
         const utils = render(<App><ContactForm /></App>);
         const call = submitForm(utils, userData, mockRequest);
-        await flushPromises();
-        expect(call).toHaveBeenCalled();
+        return Promise.resolve().then(() => {
+            expect(call).toHaveBeenCalled();
+            done();
+        });
     });
 
-    it('should clear the form when cancel', async () => {
+    it('should clear the form when cancel', () => {
         const userData = {
             name: 'john',
             email: 'john@john.doe',
@@ -102,19 +104,17 @@ describe('contactform component', () => {
         const utils = render(<App><ContactForm /></App>);
         fillForm(utils, userData);
 
-        await flushPromises();
         expect(utils.getByLabelText(/name/i).value).toEqual('john');
         expect(utils.getByLabelText(/email/i).value).toEqual('john@john.doe');
         expect(utils.getByPlaceholderText('Enter your message here').value).toEqual('abcd');
 
         fireEvent.click(utils.getByText(/cancel/i));
-        await flushPromises();
         expect(utils.getByLabelText(/name/i).value).toEqual('');
         expect(utils.getByLabelText(/email/i).value).toEqual('');
         expect(utils.getByPlaceholderText('Enter your message here').value).toEqual('');
     });
 
-    it('shouldnt be able to modify or submit the form while sending', async () => {
+    it('shouldnt be able to modify or submit the form while sending', () => {
         const userData = {
             name: 'john',
             email: 'john@john.doe',
@@ -129,13 +129,11 @@ describe('contactform component', () => {
         const App = createApp({});
         const utils = render(<App><ContactForm /></App>);
         submitForm(utils, userData, mockRequest);
-        await flushPromises();
-
         // check everything is disabled
         checkFormEnabled(utils, false);
     });
 
-    it('should not show "waiting" message initially', async () => {
+    it('should not show "waiting" message initially', () => {
         const App = createApp({});
         const utils = render(<App><ContactForm /></App>);
         expect(() => {
@@ -143,7 +141,7 @@ describe('contactform component', () => {
         }).toThrow();
     });
 
-    it('should show "waiting" message while sending', async () => {
+    it('should show "waiting" message while sending', () => {
         const userData = {
             name: 'john',
             email: 'john@john.doe',
@@ -158,12 +156,10 @@ describe('contactform component', () => {
         const App = createApp({});
         const utils = render(<App><ContactForm /></App>);
         submitForm(utils, userData, mockRequest);
-        await flushPromises();
-
         utils.getByText(/sending message/i);
     });
 
-    it('should replace the form by "success" message if success', async () => {
+    it('should replace the form by "success" message if success', (done) => {
         const userData = {
             name: 'john',
             email: 'john@john.doe',
@@ -178,22 +174,25 @@ describe('contactform component', () => {
         const App = createApp({});
         const utils = render(<App><ContactForm /></App>);
         const call = submitForm(utils, userData, mockRequest);
-        await flushPromises();
-        expect(call).toHaveBeenCalled();
+        return Promise.resolve().then(async () => {
+            expect(call).toHaveBeenCalled();
 
-        // check the form disappeared
-        expect(() => {
-            utils.getByLabelText(/name|email/i);
-        }).toThrow();
-        expect(() => {
-            utils.getByText(/submit|cancel/i);
-        }).toThrow();
+            await flushPromises();  // mocked http request
+            // check the form disappeared
+            expect(() => {
+                utils.getByLabelText(/name|email/i);
+            }).toThrow();
+            expect(() => {
+                utils.getByText(/submit|cancel/i);
+            }).toThrow();
+            // check find success message instead
+            utils.getByText(/success/i);
 
-        // check find success message instead
-        utils.getByText(/success/i);
+            done();
+        });
     });
 
-    it('should show "error" message and let the user retry if failure', async () => {
+    it('should show "error" message and let the user retry if failure', (done) => {
         const userData = {
             name: 'john',
             email: 'john@john.doe',
@@ -208,22 +207,25 @@ describe('contactform component', () => {
         const App = createApp({});
         const utils = render(<App><ContactForm /></App>);
         const call = submitForm(utils, userData, mockRequest);
-        await flushPromises();
-        expect(call).toHaveBeenCalled();
+        return Promise.resolve().then(async () => {
+            expect(call).toHaveBeenCalled();
 
-        // check values are still there
-        expect(utils.getByLabelText(/name/i).value).toEqual('john');
-        expect(utils.getByLabelText(/email/i).value).toEqual('john@john.doe');
-        expect(utils.getByPlaceholderText('Enter your message here').value).toEqual('abcd');
+            // check values are still there
+            expect(utils.getByLabelText(/name/i).value).toEqual('john');
+            expect(utils.getByLabelText(/email/i).value).toEqual('john@john.doe');
+            expect(utils.getByPlaceholderText('Enter your message here').value).toEqual('abcd');
 
-        // check find error message containing the reason
-        utils.getByText(/internal error/);
+            await flushPromises();  // mocked http request
+            // check find error message containing the reason
+            utils.getByText(/internal error/);
+            // check the user can retry the form
+            checkFormEnabled(utils, true);
 
-        // check the user can retry the form
-        checkFormEnabled(utils, true);
+            done();
+        });
     });
 
-    it('should remove "error" message when re-submitting form', async () => {
+    it('should remove "error" message when re-submitting form', (done) => {
         const userData = {
             name: 'john',
             email: 'john@john.doe',
@@ -231,29 +233,28 @@ describe('contactform component', () => {
         };
 
         // see also: https://github.com/jameslnewell/xhr-mock/tree/master/packages/xhr-mock#mockrequest
-        let _mockRequest = (req, res) => {
+        const mockRequest = (req, res) => {
             return res.status(500).reason('internal error');
         };
-        const mockRequest = (req, res) => _mockRequest(req, res);
+
         const App = createApp({});
         const utils = render(<App><ContactForm /></App>);
         const call = submitForm(utils, userData, mockRequest);
-        await flushPromises();
-        expect(call).toHaveBeenCalled();
+        return Promise.resolve().then(async () => {
+            expect(call).toHaveBeenCalled();
+            await flushPromises();  // mocked http request (first request)
 
-        // change the mock request to be able to check the waiting state
-        _mockRequest = (req, res) => {
-            return new Promise(() => {});  // wait forever
-        };
-        // re-submit the form
-        fireEvent.submit(utils.getByText(/submit/i));
-        await flushPromises();
+            // re-submit the form
+            fireEvent.submit(utils.getByText(/submit/i));
+            // check the waiting message is there
+            utils.getByText(/sending message/i);
 
-        // check the waiting message is there
-        utils.getByText(/sending message/i);
-        // check the error message disappeared
-        expect(() => {
-            utils.getByText(/internal error/);
-        }).toThrow();
+            // check the error message disappeared
+            expect(() => {
+                utils.getByText(/internal error/);
+            }).toThrow();
+
+            done();
+        });
     });
 });

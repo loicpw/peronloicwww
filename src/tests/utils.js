@@ -34,9 +34,10 @@ export const MockAlert = {
 
 
 // trigger Http requests callbacks (usefull for xhr-mock)
+const scheduler = typeof setImmedate === 'function' ? setImmediate : setTimeout;
 export const flushPromises = () => {
-    return new Promise(resolve => setImmediate(resolve));
-};
+  return new Promise(resolve => scheduler(resolve));
+}
 
 
 // TODO organize project better
